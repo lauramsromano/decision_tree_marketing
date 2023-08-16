@@ -1,8 +1,8 @@
- <h1 align="center">Modelo de Árvore de Decisão emem dados bancários.</h1>
+ <h1 align="center">Modelo de Árvore de Decisão em dados bancários.</h1>
  
  
 ### 📌 <strong>Sobre o projeto:</strong>
-Esse projeto tinha como objetivo aplicar o modelo de Árvore de Decisão aplicado a um conjunto de dados para prever se os clientes adquiririam ou não o produto "depósito bancário a prazo".
+Esse projeto tinha como objetivo aplicar o modelo de Árvore de Decisão em um conjunto de dados para prever se os clientes adquiririam ou não o produto "depósito bancário a prazo".
 
 Os dados foram extraidos do site [UC Irvine Machine Learning Repository](https://archive.ics.uci.edu/dataset/222/bank+marketing)
 
