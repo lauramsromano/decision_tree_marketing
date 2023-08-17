@@ -7,8 +7,7 @@ database: https://archive.ics.uci.edu/dataset/222/bank+marketing
 
 ``` {R Descrição do projeto}
 
-Os dados estão relacionados com campanhas de marketing direto de uma instituição bancária portuguesa. Essas campanhas de marketing foram baseadas em telefonemas e, em muitos casos, era necessário mais do que um contacto para o mesmo cliente, para saber se 
-o produto (depósito bancário a prazo) seria ("sim") ou não ("não") adquirido.
+Os dados estão relacionados com campanhas de marketing direto de uma instituição bancária portuguesa. Essas campanhas de marketing foram baseadas em telefonemas e, em muitos casos, era necessário mais do que um contacto para o mesmo cliente, para saber se o produto (depósito bancário a prazo) seria ("sim") ou não ("não") adquirido.
 
 Para isso, usaremos um modelo de árvore de decisão que nos permitirá tomar decisões lógicas e segmentar os clientes em grupos com maior probabilidade de adquirir o produto ("sim") ou não ("não"). As árvores de decisão são algoritmos de aprendizado de máquina que dividem o conjunto de dados em subgrupos com base nas características dos clientes, de modo que cada subgrupo seja o mais puro possível em relação à variável de destino, neste caso, a decisão de adquirir ou não o depósito bancário a prazo.
 
@@ -93,7 +92,7 @@ library(tidyr)
 
 ```{r Leitura da base}
 
-base <-read.csv2("bank-additional-full.csv")
+base <- read.csv2("bank-additional-full.csv")
 # View(base)
 
 ```
@@ -138,35 +137,73 @@ base$day_of_week <- factor(base$day_of_week, levels = c("mon", "tue", "wed", "th
 ```
 
 
-``` {R Dados Estatísticos}
+``` {R Dados Estatísticos - Variáveis numéricas}
 
-t(summary(colunas_numericas)) # infos estatísticas da variáveis numéricas
+colunas_numericas <- base %>% 
+  select_if(is.numeric)
+
+t(summary(colunas_numericas))
 
 ```
 
-``` {R Correlação}
+``` {R Análise de Correlação - Variáveis numéricas}
 
+target <- ifelse(base$y == "yes", 1, 0) 
 
-colunas_numericas <- base %>% # variáveis numéricas
-  select_if(is.numeric)
-
-target <- ifelse(base$y == "yes", 1, 0) # target como variável numérica
-
-correlations <- sapply(colunas_numericas, function(var) cor(var, target)) # cálculo correlação
+correlations <- sapply(colunas_numericas, function(var) cor(var, target)) 
 correlation_df <- data.frame(Correlação = correlations) 
 
 correlation_df
 
 ```
+``` {R Análise de Correlação - Variáveis categóricas}
 
-``` {R Histogramas}
+colunas_categoricas <- base %>%
+  select_if(is.factor)
 
-nome_colunas <- colnames(colunas_numericas) # nome colunas numéricas
+nome_colunas_cat <- colnames(colunas_categoricas)
+
+resultados <- data.frame(Categoria = character(0), PValor = numeric(0))
+
+for (i in nome_colunas_cat) {
+  contingency_table <- table(base[[i]], base$y)
+  chi_squared <- chisq.test(contingency_table)
+  validacao <- ifelse(chi_squared$p.value < 0.05, 'Há correlação', 'Não há correlação')
+  
+  novo_registro <- data.frame(Categoria = i, PValor = chi_squared$p.value, Correlação = validacao)
+
+  resultados <- rbind(resultados, novo_registro)
+}
+
+resultados
+
+# Colunas com p-valor NAN:
+
+# frequencia_meses <- table(base$month)
+# frequencia_dias_da_semama <- table(base$day_of_week)
+
+# print(frequencia_dias_da_semama)
+# print(frequencia_meses)
+
+```
+
+``` {R Distribuição - Variáveis numéricas}
+
+nome_colunas_num <- colnames(colunas_numericas) 
 
 par(mfrow = c(2, 5)) # subplot
 
-for (i in nome_colunas) {
+for (i in nome_colunas_num) {
   hist(base[[i]], main = paste(i), xlab = i)
+}
+
+```
+
+``` {R Distribuição - Variáveis categóricas}
+
+for (i in nome_colunas_cat) {
+  frequencia_i <- table(base[[i]])
+  barplot(frequencia_i, main = paste("Gráfico de Barras de", i), xlab = i, ylab = "Frequência")
 }
 
 ```
@@ -198,7 +235,6 @@ print(plot_mes)
 print(plot_day)
 
 ```
-
 
 ```{r Separação dados de Treino e Teste}
 
