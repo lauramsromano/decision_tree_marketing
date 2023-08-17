@@ -51,10 +51,8 @@ note: 'divorced' means divorced or widowed)
 10 - day_of_week: dia da semana de último contato
 (categórica: 'mon','tue','wed','thu','fri')
 
-
 11 - duration: duração do último contato, em segundo (numérico). 
 Observação importante: esse atributo afeta muito o destino de saída (por exemplo, se duração=0, então y='não'). No entanto, a duração não é conhecida antes de uma chamada ser realizada. Além disso, após o final da chamada, y é obviamente conhecido. Assim, esta entrada deve ser incluída apenas para fins de benchmark e deve ser descartada se a intenção seja ter um modelo preditivo realista.
-
 
 12 - campaign: número de contactos realizados nesta campanha e para este cliente 
 (numérico, inclue último contato)
@@ -72,6 +70,8 @@ Observação importante: esse atributo afeta muito o destino de saída (por exem
 18 - cons.conf.idx: índice de confiança do consumidor - indicador mensal (numérico)    
 19 - euribor3m: taxa euribor (indica a taxa de juros média dos empréstimos interbancários sem garantia da Zona Euro) a 3 meses - indicador diário (numérico)
 20 - nr.employed: número de funcionários - indicador trimestral (numérico)
+21 - y: target, diz se o cliente aderiu ou não o produto 
+(categórica: 'no','yes')
 
 ```
 
@@ -88,6 +88,7 @@ library(pROC)
 library(rpart)
 library(rpart.plot)
 library(ggplot2)
+library(tidyr)
 ```
 
 ```{r Leitura da base}
@@ -105,7 +106,7 @@ str(base)
 
 ```
 
-```{r Ajuste Categorias}
+```{r Ajuste Categorias e Valores Numéricos}
 
 base$job <- as.factor(base$job)
 base$marital <- as.factor(base$marital)
@@ -124,7 +125,6 @@ base$euribor3m <- as.numeric(base$euribor3m)
 base$nr.employed  <- as.numeric(base$nr.employed)
 
 
-
 base$month <- factor(base$month, levels = c("jan", "feb", "mar", "apr", "may", "jun",
                                             "jul", "aug", "sep", "oct", "nov", "dec"),
                      labels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -138,32 +138,32 @@ base$day_of_week <- factor(base$day_of_week, levels = c("mon", "tue", "wed", "th
 ```
 
 
-``` {R Correlação}
-
-colunas_numericas <- base %>%
-  select_if(is.numeric)
-
-matriz_correlacao <- cor(colunas_numericas)
-
-matriz_correlacao_df <- as.data.frame(as.table(matriz_correlacao))
-
-ggplot(matriz_correlacao_df, aes(x = Var1, y = Var2, fill = Freq)) +
-  geom_tile() +
-  scale_fill_gradient(low = "blue", high = "lightblue") +
-  labs(title = "Matriz de Correlação") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
 ``` {R Dados Estatísticos}
 
-t(summary(colunas_numericas)) #infos estatísticas da variáveis numéricas
+t(summary(colunas_numericas)) # infos estatísticas da variáveis numéricas
 
 ```
+
+``` {R Correlação}
+
+
+colunas_numericas <- base %>% # variáveis numéricas
+  select_if(is.numeric)
+
+target <- ifelse(base$y == "yes", 1, 0) # target como variável numérica
+
+correlations <- sapply(colunas_numericas, function(var) cor(var, target)) # cálculo correlação
+correlation_df <- data.frame(Correlação = correlations) 
+
+correlation_df
+
+```
+
 ``` {R Histogramas}
 
-nome_colunas <- colnames(colunas_numericas) # nome colunas
+nome_colunas <- colnames(colunas_numericas) # nome colunas numéricas
 
-par(mfrow = c(2, 5)) #subplot
+par(mfrow = c(2, 5)) # subplot
 
 for (i in nome_colunas) {
   hist(base[[i]], main = paste(i), xlab = i)
@@ -171,10 +171,38 @@ for (i in nome_colunas) {
 
 ```
 
+```{R Análise Temporal da target}
 
-```{r Treino e Teste}
+agrup_mes <- base %>% 
+  group_by(month, y) %>% 
+  summarise(n = n(), .groups = 'drop')  # definir o argumento .groups como 'drop' para remover o agrupamento
 
-set.seed(123)
+agrup_day <- base %>% 
+  group_by(day_of_week, y) %>% 
+  summarise(n = n(), .groups = 'drop')
+
+plot_mes <- ggplot(agrup_mes, aes(x = month, y = n, fill = y)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Histograma de Barras Agrupadas por Mês",
+       x = "Mês", y = "Contagem",
+       fill = "Variável Y")
+
+plot_day <- ggplot(agrup_day, aes(x = day_of_week, y = n, fill = y)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Histograma de Barras Agrupadas por Mês",
+       x = "Mês", y = "Contagem",
+       fill = "Variável Y")
+
+
+print(plot_mes)
+print(plot_day)
+
+```
+
+
+```{r Separação dados de Treino e Teste}
+
+set.seed(123) 
 divisao <- initial_split(base, prop = 0.7)
 treino <- training(divisao)
 teste <- testing(divisao)
@@ -185,18 +213,15 @@ teste <- testing(divisao)
 
 # Definindo os parâmetros de controle do treinamento:
 
-# - O resultado do controle é armazenado na variável ctrl
-
 ctrl <- trainControl(method = "cv", # validação cruzada
-                     number = 10, # folds
+                     number = 10, # quantidade de folds
                      summaryFunction = twoClassSummary, # função de resumo para problemas de classif binária
-                     classProbs = TRUE) # ermitir a saída das probabilidades das classes.
+                     classProbs = TRUE) # permitir a saída das probabilidades das classes
 
 # Modelo treinado:
 
-# - O resultado do treinamento (modelo ajustado) é armazenado na variável dtFit.
 
-dtFit <- train(y ~ ., #target em relação a todos os outros parâmetros
+dtFit <- train(y ~ ., # target em relação a todos os outros parâmetros
                method = "rpart2", # usa a profundidade máxima (caso rpart, o parâmetro seria o de complexidade)
                tuneLength = 5,  # até 20 valores por nós
                trControl = ctrl, # objeto ctrl estabelecido com a validação cruzada
@@ -208,7 +233,7 @@ dtFit
 
 ```
 
-``` {R Árvore de Decisão}
+``` {R Visualização da Árvore de Decisão}
 
 rpart.plot(dtFit$finalModel,
            extra = 4, # informação extra nos nós
@@ -217,23 +242,20 @@ rpart.plot(dtFit$finalModel,
 
 ```
 
-
-Predições:
+- Predições:
 
 
 ``` {R Predições com o modelo treinado}
 
 preddt <- predict(dtFit, teste, type = "prob") # utilizando o modelo dtFit, com a base de teste, com resultados atraves das probabilidades
-
-resultdt <- as.factor(ifelse(preddt[,2] > 0.5, "yes", "no")) # preddt[,2] - coluna com as prob de 'yes
+resultdt <- as.factor(ifelse(preddt[,2] > 0.5, "yes", "no")) # preddt[,2] - coluna com as prob de 'yes'
+resultdt
 
 ```
 
-Desempenho do Modelo:
+- Desempenho do Modelo:
 
 ``` {R Matriz de Confusão}
-
-# library(carret)
 
 confusionMatrix(resultdt, teste$y, positive = "yes")
 
@@ -241,18 +263,15 @@ confusionMatrix(resultdt, teste$y, positive = "yes")
 
 ``` {R Curva ROC AUC}
 
-# library(pROC)
-
 aucdf <- roc(teste$y, preddt[,2])
-plot.roc(aucdf, print.thres = T) # descobrimos o melhor ponto de corte
+plot.roc(aucdf, print.thres = T) #  print.thres: descobrimos o melhor ponto de corte
 
 ```
 
 ``` {R Predições com o modelo treinado em novo ponto de corte}
 
-preddt <- predict(dtFit, teste, type = "prob") # utilizando o modelo dtFit, com a base de teste, com resultados atraves das probabilidades
-
-resultdt <- as.factor(ifelse(preddt[,2] > 0.089, "yes", "no")) # preddt[,2] - coluna com as prob de 'yes
+preddt <- predict(dtFit, teste, type = "prob") 
+resultdt <- as.factor(ifelse(preddt[,2] > 0.089, "yes", "no")) 
 
 confusionMatrix(resultdt, teste$y, positive = "yes")
 
