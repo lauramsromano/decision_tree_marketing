@@ -74,8 +74,7 @@ Observação importante: esse atributo afeta muito o destino de saída (por exem
 
 ```
 
-
-```{r Bibliotecas utilizadas}
+```{R Bibliotecas utilizadas}
 
 library(readr)
 library(rsample)
@@ -97,15 +96,25 @@ base <- read.csv2("bank-additional-full.csv")
 
 ```
 
-- Análise Exploratória e levantamentos estatísticos:
-
 ```{r Análise das variáveis}
 
 str(base)
 
 ```
 
-```{r Ajuste Categorias e Valores Numéricos}
+``` {R Ajuste na base}
+
+# Colunas temporais:
+
+base$month <- factor(base$month, levels = c("jan", "feb", "mar", "apr", "may", "jun",
+                                            "jul", "aug", "sep", "oct", "nov", "dec"),
+                     labels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
+
+base$day_of_week <- factor(base$day_of_week, levels = c("mon", "tue", "wed", "thu", "fri", "sat", "sun"),
+                           labels = c("Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"))
+
+# Colunas categóricas:
 
 base$job <- as.factor(base$job)
 base$marital <- as.factor(base$marital)
@@ -117,6 +126,8 @@ base$poutcome <- as.factor(base$poutcome)
 base$loan <- as.factor(base$loan)
 base$y <- as.factor(base$y)
 
+# Colunas numéricas:
+
 base$emp.var.rate <- as.numeric(base$emp.var.rate)
 base$cons.price.idx <- as.numeric(base$cons.price.idx)
 base$cons.conf.idx <- as.numeric(base$cons.conf.idx)
@@ -124,23 +135,29 @@ base$euribor3m <- as.numeric(base$euribor3m)
 base$nr.employed  <- as.numeric(base$nr.employed)
 
 
-base$month <- factor(base$month, levels = c("jan", "feb", "mar", "apr", "may", "jun",
-                                            "jul", "aug", "sep", "oct", "nov", "dec"),
-                     labels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
+```
 
-base$day_of_week <- factor(base$day_of_week, levels = c("mon", "tue", "wed", "thu", "fri", "sat", "sun"),
-                           labels = c("Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"))
+``` {R Verificação valores nulos}
 
-# str(base)
+missing_proportions <- sapply(base, function(x) sum(is.na(x)))
+print(missing_proportions)
+
+
+# Identifique variáveis com valores ausentes e avalie 
+# a proporção de valores faltantes em cada variável.
 
 ```
 
+############### Análise Exploratória e levantamentos estatísticos:
+
+######## Variáveis Numéricas:
 
 ``` {R Dados Estatísticos - Variáveis numéricas}
 
 colunas_numericas <- base %>% 
   select_if(is.numeric)
+nome_colunas_num <- colnames(colunas_numericas) 
+
 
 t(summary(colunas_numericas))
 
@@ -152,16 +169,58 @@ target <- ifelse(base$y == "yes", 1, 0)
 
 correlations <- sapply(colunas_numericas, function(var) cor(var, target)) 
 correlation_df <- data.frame(Correlação = correlations) 
-
 correlation_df
 
+# Calcule medidas de correlação (por exemplo, coeficiente de correlação de Pearson) 
+# entre variáveis numéricas e a target.
+
 ```
+
+``` {R Distribuição - Variáveis numéricas}
+
+par(mfrow = c(2, 5)) # subplot
+
+for (i in nome_colunas_num) {
+  hist(base[[i]], main = paste(i), xlab = i, col = "#1f78b4")
+}
+
+# Use gráficos de dispersão ou box plots para visualizar 
+# a relação entre variáveis numéricas e a variável de destino.
+
+```
+
+``` {R Boxplot das variáveis numéricas}
+
+for (i in nome_colunas_num) {
+  p <- ggplot(base, aes(x = y, y = !!sym(i), fill = y)) +
+    geom_boxplot() +
+    labs(title = paste("Box Plot de Target em relação à", i),
+         x = "Variável Y", 
+         y = i,
+         fill = "Variável Y") +
+    theme_minimal() +
+    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+
+  print(p)
+}
+
+
+# Use gráficos de dispersão ou box plots para visualizar 
+# a relação entre variáveis numéricas e a variável de destino.
+
+```
+
+######## Variáveis Categóricas:
+
 ``` {R Análise de Correlação - Variáveis categóricas}
 
 colunas_categoricas <- base %>%
   select_if(is.factor)
 
 nome_colunas_cat <- colnames(colunas_categoricas)
+nome_colunas_cat <- nome_colunas_cat[nome_colunas_cat != 'y'] # removendo a coluna 'y' (target)
+nome_colunas_cat <- nome_colunas_cat[nome_colunas_cat != 'month'] # removendo a coluna 'month' (target)
+nome_colunas_cat <- nome_colunas_cat[nome_colunas_cat != 'day_of_week'] # removendo a coluna 'day_of_week' (target)
 
 resultados <- data.frame(Categoria = character(0), PValor = numeric(0))
 
@@ -177,64 +236,86 @@ for (i in nome_colunas_cat) {
 
 resultados
 
-# Colunas com p-valor NAN:
-
-# frequencia_meses <- table(base$month)
-# frequencia_dias_da_semama <- table(base$day_of_week)
-
-# print(frequencia_dias_da_semama)
-# print(frequencia_meses)
-
 ```
 
-``` {R Distribuição - Variáveis numéricas}
-
-nome_colunas_num <- colnames(colunas_numericas) 
-
-par(mfrow = c(2, 5)) # subplot
-
-for (i in nome_colunas_num) {
-  hist(base[[i]], main = paste(i), xlab = i)
-}
-
-```
-
-``` {R Distribuição - Variáveis categóricas}
+``` {R Percentual por resposta em cada categoria - Variáveis categóricas}
 
 for (i in nome_colunas_cat) {
-  frequencia_i <- table(base[[i]])
-  barplot(frequencia_i, main = paste("Gráfico de Barras de", i), xlab = i, ylab = "Frequência")
+  a <- base %>%
+    group_by(!!sym(i), y) %>%
+    summarise(n = n(), .groups = 'drop') %>%
+    mutate(Perc = (n / sum(n)) * 100)
+    
+  p <- ggplot(a, aes(x = !!sym(i), y = Perc, fill = y)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+              position = position_dodge(width = 0.9), vjust = -0.5) +
+    labs(title = paste("Distribuição das categorias em", i, "por resposta"),
+         x = i,
+         y = "Percentual",
+         fill = "target") +
+    coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+    theme_minimal() +
+    theme(legend.position = "top",
+          axis.text.x = element_text(angle = 45, hjust = 1)) +
+    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+
+  print(p)
+}
+
+
+# Crie tabelas de contingência e gráficos de barras para entender a 
+# distribuição das categorias em variáveis categóricas em relação à 
+# variável de destino ("sim" ou "não" para adquirir o depósito bancário a prazo).
+
+
+```
+
+``` {R Taxa de Conversão - Variáveis categóricas}
+
+for (i in nome_colunas_cat) {
+  conversion_rates <- base %>%
+    group_by(!!sym(i)) %>%
+    summarise(conversion_rate = sum(y == "yes") / n())
+  
+  conversion_rates <- conversion_rates %>%
+    arrange(desc(conversion_rate))
+  
+  print(conversion_rates)
+}
+
+
+# Calcule as taxas de conversão para cada categoria e avalie 
+# a influência potencial de cada variável categórica na decisão. 
+
+```
+######## Target:
+
+```{R Análise Temporal da 'target'}
+
+nome_colunas_tempo <- c("month", "day_of_week")
+
+for (i in nome_colunas_tempo) {
+  
+  a <- base %>% 
+    group_by(!!sym(i), y) %>% 
+    summarise(n = n(), .groups = 'drop')
+  
+  p <- ggplot(a, aes(x = !!sym(i), y = n, fill = y)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = paste("Histograma de Barras Agrupadas por", i),
+         x = i, y = "Contagem",
+         fill = "target") +
+    scale_fill_manual(values = c("#1f78b4", "#a6cee3")) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  print(p)
+  
 }
 
 ```
-
-```{R Análise Temporal da target}
-
-agrup_mes <- base %>% 
-  group_by(month, y) %>% 
-  summarise(n = n(), .groups = 'drop')  # definir o argumento .groups como 'drop' para remover o agrupamento
-
-agrup_day <- base %>% 
-  group_by(day_of_week, y) %>% 
-  summarise(n = n(), .groups = 'drop')
-
-plot_mes <- ggplot(agrup_mes, aes(x = month, y = n, fill = y)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Histograma de Barras Agrupadas por Mês",
-       x = "Mês", y = "Contagem",
-       fill = "Variável Y")
-
-plot_day <- ggplot(agrup_day, aes(x = day_of_week, y = n, fill = y)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Histograma de Barras Agrupadas por Mês",
-       x = "Mês", y = "Contagem",
-       fill = "Variável Y")
-
-
-print(plot_mes)
-print(plot_day)
-
-```
+############### Modelo ML - Árvore de Decisão:
 
 ```{r Separação dados de Treino e Teste}
 
@@ -278,18 +359,16 @@ rpart.plot(dtFit$finalModel,
 
 ```
 
-- Predições:
-
+######## Predições:
 
 ``` {R Predições com o modelo treinado}
 
-preddt <- predict(dtFit, teste, type = "prob") # utilizando o modelo dtFit, com a base de teste, com resultados atraves das probabilidades
+preddt <- predict(dtFit, teste, type = "prob") # utilizando o modelo dtFit, com a base de teste, com resultados através das probabilidades
 resultdt <- as.factor(ifelse(preddt[,2] > 0.5, "yes", "no")) # preddt[,2] - coluna com as prob de 'yes'
 resultdt
 
 ```
-
-- Desempenho do Modelo:
+######## Desempenho do Modelo:
 
 ``` {R Matriz de Confusão}
 
@@ -306,10 +385,10 @@ plot.roc(aucdf, print.thres = T) #  print.thres: descobrimos o melhor ponto de c
 
 ``` {R Predições com o modelo treinado em novo ponto de corte}
 
-preddt <- predict(dtFit, teste, type = "prob") 
-resultdt <- as.factor(ifelse(preddt[,2] > 0.089, "yes", "no")) 
+# preddt <- predict(dtFit, teste, type = "prob") 
+# resultdt <- as.factor(ifelse(preddt[,2] > 0.089, "yes", "no")) 
 
-confusionMatrix(resultdt, teste$y, positive = "yes")
+# confusionMatrix(resultdt, teste$y, positive = "yes")
 
 ```
 
