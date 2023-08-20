@@ -7,7 +7,9 @@ database: https://archive.ics.uci.edu/dataset/222/bank+marketing
 
 ``` {R Descrição do projeto}
 
-Os dados estão relacionados com campanhas de marketing direto de uma instituição bancária portuguesa. Essas campanhas de marketing foram baseadas em telefonemas e, em muitos casos, era necessário mais do que um contacto para o mesmo cliente, para saber se o produto (depósito bancário a prazo) seria ("sim") ou não ("não") adquirido.
+Os dados estão relacionados com campanhas de marketing direto de uma instituição bancária portuguesa. Essas campanhas de marketing foram baseadas em telefonemas e, em muitos casos, era necessário mais do que um contato para o mesmo cliente, para saber se o produto (depósito bancário a prazo) seria ("sim") ou não ("não") adquirido.
+
+A ideia desser projeto é criar um modelo para categorizar novoc clientes como potenciais adquiridores do produto.
 
 Para isso, usaremos um modelo de árvore de decisão que nos permitirá tomar decisões lógicas e segmentar os clientes em grupos com maior probabilidade de adquirir o produto ("sim") ou não ("não"). As árvores de decisão são algoritmos de aprendizado de máquina que dividem o conjunto de dados em subgrupos com base nas características dos clientes, de modo que cada subgrupo seja o mais puro possível em relação à variável de destino, neste caso, a decisão de adquirir ou não o depósito bancário a prazo.
 
@@ -102,6 +104,10 @@ str(base)
 
 ```
 
+Observamos que a maioria das variáveis se enquadra em dois tipos: inteiro (int) e caractere (chr). É necessário efetuar um ajuste nas variáveis que devem ser definidas como categóricas. Além disso, para evitar possíveis problemas, converteremos as variáveis do tipo inteiro em numéricas (num). Também iremos criar algumas variáveis a fim de facilitar nossa análise.
+
+A seguir, demonstramos o código que realiza tais ajustes:
+
 ``` {R Ajuste na base}
 
 # Colunas temporais:
@@ -128,6 +134,12 @@ base$y <- as.factor(base$y)
 
 # Colunas numéricas:
 
+base$age <- as.numeric(base$age)
+base$duration <- as.numeric(base$duration)
+base$campaign <- as.numeric(base$campaign)
+base$pdays <- as.numeric(base$pdays)
+base$previous <- as.numeric(base$previous)
+
 base$emp.var.rate <- as.numeric(base$emp.var.rate)
 base$cons.price.idx <- as.numeric(base$cons.price.idx)
 base$cons.conf.idx <- as.numeric(base$cons.conf.idx)
@@ -135,22 +147,32 @@ base$euribor3m <- as.numeric(base$euribor3m)
 base$nr.employed  <- as.numeric(base$nr.employed)
 
 
+base <- base %>%
+  mutate(age_range = case_when(
+    age <= 18 ~ "Menos de 18",
+    age <= 30 ~ "18-30",
+    age <= 50 ~ "31-50",
+    age <= 70 ~ "51-70",
+    TRUE ~ "Mais de 70"  
+    ))
+
+base$age_range <- as.factor(base$age_range)
+
+str(base)
+
 ```
+
+Para o algoritmo que será empregado na categorização, é crucial que não haja valores nulos em nossa base de dados. Portanto, realizaremos uma verificação por meio do seguinte código:
 
 ``` {R Verificação valores nulos}
 
 missing_proportions <- sapply(base, function(x) sum(is.na(x)))
 print(missing_proportions)
 
-
-# Identifique variáveis com valores ausentes e avalie 
-# a proporção de valores faltantes em cada variável.
-
 ```
 
 ############### Análise Exploratória e levantamentos estatísticos:
 
-######## Variáveis Numéricas:
 
 ``` {R Dados Estatísticos - Variáveis numéricas}
 
@@ -160,19 +182,6 @@ nome_colunas_num <- colnames(colunas_numericas)
 
 
 t(summary(colunas_numericas))
-
-```
-
-``` {R Análise de Correlação - Variáveis numéricas}
-
-target <- ifelse(base$y == "yes", 1, 0) 
-
-correlations <- sapply(colunas_numericas, function(var) cor(var, target)) 
-correlation_df <- data.frame(Correlação = correlations) 
-correlation_df
-
-# Calcule medidas de correlação (por exemplo, coeficiente de correlação de Pearson) 
-# entre variáveis numéricas e a target.
 
 ```
 
@@ -189,29 +198,210 @@ for (i in nome_colunas_num) {
 
 ```
 
+Algumas informações sobre as variáveis numéricas:
+
+- A idade média das pessoas constatadas é de 40 anos, mas há clientes na faixa dos 80-90 anos. (age)
+- Em média, os cliente foram constatados aproximandamento 3 vezes até realizar sua decisão. (campaign)
+- As ligações duram em médias 300 segundos, 5 minutos. (duration)
+- A maior parte dos clientes não havia sido contato em campanhias anteriores. (pdays)
+
 ``` {R Boxplot das variáveis numéricas}
 
-for (i in nome_colunas_num) {
-  p <- ggplot(base, aes(x = y, y = !!sym(i), fill = y)) +
-    geom_boxplot() +
-    labs(title = paste("Box Plot de Target em relação à", i),
-         x = "Variável Y", 
-         y = i,
-         fill = "Variável Y") +
-    theme_minimal() +
-    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+#for (i in nome_colunas_num) {
+#  p <- ggplot(base, aes(x = y, y = !!sym(i), fill = y)) +
+#    geom_boxplot() +
+#    labs(title = paste("Box Plot de Target em relação à", i),
+#         x = "Variável Y", 
+#         y = i,
+#         fill = "Variável Y") +
+#    theme_minimal() +
+#    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
 
-  print(p)
-}
-
+#  print(p)
+#}
 
 # Use gráficos de dispersão ou box plots para visualizar 
 # a relação entre variáveis numéricas e a variável de destino.
 
 ```
 
-######## Variáveis Categóricas:
 
+``` {R Percentual de aquisição do produto por Faixa de Idade}
+
+a <- base %>%
+  group_by(age_range, y) %>%
+  summarise(n = n(), .groups = 'drop') %>% 
+  mutate(Perc = (n / sum(n)) * 100)
+    
+p <- ggplot(a, aes(x = age_range, y = Perc, fill = y)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = paste("Percentual de aquisição do produto por faixa de idade"),
+        x = i,
+        y = "Percentual",
+         fill = "target") +
+  coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+
+print(p)
+
+```
+``` {R Taxa de Conversão por Faixa de Idade}
+
+conversion_rates <- base %>%
+  group_by(age_range) %>%
+  summarise(conversion_rate = sum(y == "yes") / n())
+
+conversion_rates <- conversion_rates %>%
+  arrange(desc(conversion_rate))
+
+
+p <- ggplot(conversion_rates, aes(x = age_range, y = conversion_rate, fill = age_range)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "Percentual de Aquisição do Produto por Faixa de Idade",
+       x = "Faixa de Idade",
+       y = "Percentual",
+       fill = "Faixa de Idade") +
+  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+print(p)
+
+
+# Calcule as taxas de conversão para cada categoria e avalie 
+# a influência potencial de cada variável categórica na decisão. 
+
+```
+Embora a faixa etária de 31 a 50 anos tenha registrado um maior número de clientes que adquiriram o produto, destaca-se que a taxa de conversão mais notável ocorre entre os clientes com mais de 70 anos, onde 47,6% dos indivíduos foram motivados a adquirir o produto. Em contraste, somente 9,1% dos clientes na faixa etária intermediária efetuaram a compra. Em segundo lugar, encontram-se os indivíduos com menos de 18 anos, apresentando uma elevada taxa de adesão ao produto, chegando a 42,4%.
+
+Esses dados revelam uma tendência intrigante, especialmente quando consideramos que o produto em análise é um depósito a prazo, um instrumento financeiro que envolve a alocação de fundos a uma instituição de crédito. Nesse contexto, a instituição se compromete a reembolsar esses fundos ao cliente ao final de um período predeterminado, além de oferecer uma remuneração na forma de juros. Vamos verificar mais algumas informações.
+
+```{R Distribuiição de Profissão por Faixa de Idade}
+
+p <- ggplot(base, aes(x = age_range, fill = job)) +
+  geom_bar(position = "stack") +
+  labs(title = "Distribuição de Cargos por Faixa de Idade",
+       x = "Faixa de Idade",
+       y = "Contagem",
+       fill = "Cargo") +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(p)
+
+
+```
+``` {R Taxa de Conversão por Profissão para cada Faixa de Idade}
+
+
+age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
+
+
+for (i in age_ranges) {
+  conversion_rates <- base %>%
+    filter(age_range %in% c(i)) %>%
+    group_by(job) %>%
+    summarise(conversion_rate = sum(y == "yes") / n())
+  
+  conversion_rates <- conversion_rates %>%
+    arrange(desc(conversion_rate))
+  
+  p <- ggplot(conversion_rates, aes(x = reorder(job, conversion_rate), y = conversion_rate, fill = job)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+              position = position_dodge(width = 0.9), vjust = -0.5) +
+    labs(title = paste("% de Aquisição do Produto por Profissão para Faixa de Idade '", i, "'"),
+         x = "Profissão",
+         y = "Percentual",
+         fill = "Profissão")  +
+    coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+    theme_minimal() +
+    theme(legend.position = "top",
+          axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+print(p)
+
+}
+
+```
+
+``` {R Taxa de Conversão por Nivel Educacional para cada Faixa de Idade}
+
+
+age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
+
+
+for (i in age_ranges) {
+  conversion_rates <- base %>%
+    filter(age_range %in% c(i)) %>%
+    group_by(education) %>%
+    summarise(conversion_rate = sum(y == "yes") / n())
+  
+  conversion_rates <- conversion_rates %>%
+    arrange(desc(conversion_rate))
+  
+  p <- ggplot(conversion_rates, aes(x = reorder(education, conversion_rate), y = conversion_rate, fill = education)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+              position = position_dodge(width = 0.9), vjust = -0.5) +
+    labs(title = paste("% de Aquisição do Produto por Profissão para Faixa de Idade '", i, "'"),
+         x = "Nivel Educacional",
+         y = "Percentual",
+         fill = "Nivel Educacional")  +
+    coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+    theme_minimal() +
+    theme(legend.position = "top",
+          axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+print(p)
+
+}
+
+```
+
+Ao observar a faixa de idade com o menor percentual de conversão, entre 31 e 50 anos, é notável que as maiores taxas de conversão pertencem a estudantes, com 22,3%, seguidos por pessoas desempregadas, com 12%, e trabalhadores de áreas administrativas, com 11,2% de taxa de conversão.
+
+Dentro da faixa de 51 a 70 anos, pessoas desempregadas e trabalhadores de áreas administrativas mantêm-se em segundo e terceiro lugar nas taxas de conversão, com 16,9% e 15,7%, respectivamente. A maior taxa de conversão é observada entre pessoas aposentadas, alcançando 20,3%.
+
+Inferimos uma tendência de investimento por parte de pessoas desempregadas em produtos a prazo. Esse tipo de investimento oferece um retorno previsível e, dadas as circunstâncias de emprego, os indivíduos têm clareza sobre o prazo para reaver esses valores, caso necessário. O mesmo padrão é observado na faixa de "18-30" anos, onde 20,7% das pessoas desempregadas também realizaram a conversão.
+
+Os trabalhadores de "blue-collar", que executam trabalhos manuais e/ou ofícios especializados, apresentam algumas das três menores taxas de conversão em quatro das cinco faixas etárias. Esse grupo pode desconhecer questões de finanças e investimentos ou direcionar seus recursos para áreas essenciais devido aos baixos salários. Nessa categoria, também podemos incluir os trabalhadores de áreas de serviços.
+
+No tocante aos estudantes, é plausível inferir que enxergam nessa modalidade de investimento uma oportunidade para estabelecer uma reserva de emergência ou acumular recursos destinados a metas de curto prazo. Nas faixas de "31-50" e "51-70" temos uma maior adesão ao produto pessoas com niveis educacions profissionais e universitários. 
+
+O mesmo raciocínio se aplica aos estudantes da faixa etária "Menos de 18" anos, mas nesse caso, é provável que os pais desses jovens estejam diretamente envolvidos na tomada de decisão desse investimento. A grande adesão ao nível educacional 'basic 6y', que corresponde ao término do 1.º ciclo e abrange alunos com idades aproximadas de 6 a 12 anos, coincide com o período em que os pais começam a considerar a organização de finanças para o futuro de seus filhos.
+
+Na faixa etária "Mais de 70" anos, 83,3% são pessoas sem profissão conhecida. Entre as outras quatro posições, destacam-se os trabalhadores de gerência, com 66,7%, e os trabalhadores de áreas administrativas, com 46,9% de conversão. Inferimos que profissionais ligados à gestão e administração possam ter maior conhecimento sobre a importância da gestão financeira e dos investimentos. 
+
+Por outro lado, os trabalhadores de limpeza apresentam uma taxa de conversão de 57,1%, enquanto os aposentados têm uma taxa de 46,9%. Esses grupos podem não possuir conhecimento aprofundado em questões financeiras e, possivelmente, tenham adquirido o produto por desconhecerem uma variedade maior de opções ou por influência direta do atendente. Ambas as profissões têm valores muito baixos de aquisição em outras faixas etárias. Outro ponto que corrobora para essa análise é que na faixa de "Mais de 70" anos, 100% das pessoas analfabetas adquiriram o porduto, seguindo de 68,2% de pessoas sem profissão conhecida, o que pode indicar a influência significativa do contato direto com os atendentes ou a falta de familiaridade com alternativas no mercado.
+
+-- Conclusões gerais:
+
+Quanto aos idosos, com uma taxa de conversão de 47,9%, seu interesse no produto pode ser motivado pelo desejo de preservar e administrar cuidadosamente os recursos financeiros acumulados ao longo da vida. A alta taxa de conversão sugere que esse grupo demográfico percebe o depósito a prazo como uma forma segura e confiável de manter seus fundos. Além disso, para idosos que não atuam em áreas administrativas, é possível considerar que, devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes, sendo levando pelo poder de persuasão dos atendentes.
+
+Essa consideração pode explicar a taxa de conversão relativamente menor nas faixas etárias de 18 a 30 e de 51 a 70, onde uma parcela mais ampla da população possivelmente tenha uma base de conhecimento em finanças e investimentos, levando-os a explorar diferentes tipos de produtos financeiros para atender às suas necessidades específicas.
+
+Para os jovens das faixas de "Menos de 18" e "18-30" anos, percebe-se nessa modalidade de investimento uma oportunidade de criar uma reserva de emergência ou acumular recursos para metas de curto prazo, como a aquisição de bens de valor ou custos associados à educação superior. Além disso, a escolha desse produto pode refletir a busca por segurança e estabilidade financeira, visto que os depósitos a prazo geralmente garantem retornos previsíveis e são considerados menos arriscados em comparação com outras formas de investimento.
+
+Por fim, observa-se uma alta taxa de conversão de pessoas desempregadas nas faixas de "18-30", "31-50" e "51-70", devido às características deste tipo de produto e possivelmente à falta de conhecimento sobre questões financeiras e de investimento.
+
+``` {R Análise de Correlação - Variáveis numéricas}
+
+target <- ifelse(base$y == "yes", 1, 0) 
+
+correlations <- sapply(colunas_numericas, function(var) cor(var, target)) 
+correlation_df <- data.frame(Correlação = correlations) 
+correlation_df
+
+```
 ``` {R Análise de Correlação - Variáveis categóricas}
 
 colunas_categoricas <- base %>%
