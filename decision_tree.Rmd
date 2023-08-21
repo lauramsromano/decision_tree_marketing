@@ -483,19 +483,19 @@ conversion_rates <- base %>%
   group_by(month) %>%
   summarise(conversion_rate = sum(y == "yes") / n())
 
-mean_ver <- base %>%
+euribor3m <- base %>%
   group_by(month) %>%
-  summarise(mean_ver = mean(emp.var.rate))
+  summarise(euribor3m = mean(euribor3m))
 
 conversion_rates <- conversion_rates %>%
-  left_join(mean_ver, by = "month") %>%  
+  left_join(euribor3m, by = "month") %>%  
   arrange(desc(conversion_rate))
 
 p <- ggplot(conversion_rates, aes(x = reorder(month, conversion_rate), y = conversion_rate, fill = month)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  geom_text(aes(label = paste0(round(mean_ver, 2))), 
+  geom_text(aes(label = paste0(round(euribor3m, 2))), 
             position = position_dodge(width = 0.9), vjust = -3, color = "red") +
   labs(title = "% de Aquisição do Produto por Mês",
        x = "Mês",
