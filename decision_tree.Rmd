@@ -197,7 +197,6 @@ for (i in nome_colunas_num) {
 # a relação entre variáveis numéricas e a variável de destino.
 
 ```
-
 Algumas informações sobre as variáveis numéricas:
 
 - A idade média das pessoas constatadas é de 40 anos, mas há clientes na faixa dos 80-90 anos. (age)
@@ -275,15 +274,12 @@ p <- ggplot(conversion_rates, aes(x = age_range, y = conversion_rate, fill = age
 print(p)
 
 
-# Calcule as taxas de conversão para cada categoria e avalie 
-# a influência potencial de cada variável categórica na decisão. 
-
 ```
 Embora a faixa etária de 31 a 50 anos tenha registrado um maior número de clientes que adquiriram o produto, destaca-se que a taxa de conversão mais notável ocorre entre os clientes com mais de 70 anos, onde 47,6% dos indivíduos foram motivados a adquirir o produto. Em contraste, somente 9,1% dos clientes na faixa etária intermediária efetuaram a compra. Em segundo lugar, encontram-se os indivíduos com menos de 18 anos, apresentando uma elevada taxa de adesão ao produto, chegando a 42,4%.
 
 Esses dados revelam uma tendência intrigante, especialmente quando consideramos que o produto em análise é um depósito a prazo, um instrumento financeiro que envolve a alocação de fundos a uma instituição de crédito. Nesse contexto, a instituição se compromete a reembolsar esses fundos ao cliente ao final de um período predeterminado, além de oferecer uma remuneração na forma de juros. Vamos verificar mais algumas informações.
 
-```{R Distribuiição de Profissão por Faixa de Idade}
+```{R Distribuição de Profissão por Faixa de Idade}
 
 p <- ggplot(base, aes(x = age_range, fill = job)) +
   geom_bar(position = "stack") +
@@ -301,9 +297,7 @@ print(p)
 ```
 ``` {R Taxa de Conversão por Profissão para cada Faixa de Idade}
 
-
 age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
-
 
 for (i in age_ranges) {
   conversion_rates <- base %>%
@@ -335,9 +329,7 @@ print(p)
 
 ``` {R Taxa de Conversão por Nivel Educacional para cada Faixa de Idade}
 
-
 age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
-
 
 for (i in age_ranges) {
   conversion_rates <- base %>%
@@ -366,7 +358,31 @@ print(p)
 }
 
 ```
+``` {R Taxa de Conversão por Nivel Educacional}
 
+conversion_rates <- base %>%
+  group_by(education) %>%
+  summarise(conversion_rate = sum(y == "yes") / n())
+
+conversion_rates <- conversion_rates %>%
+  arrange(desc(conversion_rate))
+
+
+p <- ggplot(conversion_rates, aes(x =  reorder(education, conversion_rate), y = conversion_rate, fill = education)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "% de Aquisição do Produto por Nível Educacional",
+       x = "Nível Educacional",
+       y = "Percentual",
+       fill = "Nível Educacional") +
+  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+print(p)
+
+```
 Ao observar a faixa de idade com o menor percentual de conversão, entre 31 e 50 anos, é notável que as maiores taxas de conversão pertencem a estudantes, com 22,3%, seguidos por pessoas desempregadas, com 12%, e trabalhadores de áreas administrativas, com 11,2% de taxa de conversão.
 
 Dentro da faixa de 51 a 70 anos, pessoas desempregadas e trabalhadores de áreas administrativas mantêm-se em segundo e terceiro lugar nas taxas de conversão, com 16,9% e 15,7%, respectivamente. A maior taxa de conversão é observada entre pessoas aposentadas, alcançando 20,3%.
@@ -383,7 +399,7 @@ Na faixa etária "Mais de 70" anos, 83,3% são pessoas sem profissão conhecida.
 
 Por outro lado, os trabalhadores de limpeza apresentam uma taxa de conversão de 57,1%, enquanto os aposentados têm uma taxa de 46,9%. Esses grupos podem não possuir conhecimento aprofundado em questões financeiras e, possivelmente, tenham adquirido o produto por desconhecerem uma variedade maior de opções ou por influência direta do atendente. Ambas as profissões têm valores muito baixos de aquisição em outras faixas etárias. Outro ponto que corrobora para essa análise é que na faixa de "Mais de 70" anos, 100% das pessoas analfabetas adquiriram o porduto, seguindo de 68,2% de pessoas sem profissão conhecida, o que pode indicar a influência significativa do contato direto com os atendentes ou a falta de familiaridade com alternativas no mercado.
 
--- Conclusões gerais:
+| Conclusões gerais:
 
 Quanto aos idosos, com uma taxa de conversão de 47,9%, seu interesse no produto pode ser motivado pelo desejo de preservar e administrar cuidadosamente os recursos financeiros acumulados ao longo da vida. A alta taxa de conversão sugere que esse grupo demográfico percebe o depósito a prazo como uma forma segura e confiável de manter seus fundos. Além disso, para idosos que não atuam em áreas administrativas, é possível considerar que, devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes, sendo levando pelo poder de persuasão dos atendentes.
 
@@ -392,6 +408,10 @@ Essa consideração pode explicar a taxa de conversão relativamente menor nas f
 Para os jovens das faixas de "Menos de 18" e "18-30" anos, percebe-se nessa modalidade de investimento uma oportunidade de criar uma reserva de emergência ou acumular recursos para metas de curto prazo, como a aquisição de bens de valor ou custos associados à educação superior. Além disso, a escolha desse produto pode refletir a busca por segurança e estabilidade financeira, visto que os depósitos a prazo geralmente garantem retornos previsíveis e são considerados menos arriscados em comparação com outras formas de investimento.
 
 Por fim, observa-se uma alta taxa de conversão de pessoas desempregadas nas faixas de "18-30", "31-50" e "51-70", devido às características deste tipo de produto e possivelmente à falta de conhecimento sobre questões financeiras e de investimento.
+
+--
+
+Correlações:
 
 ``` {R Análise de Correlação - Variáveis numéricas}
 
@@ -427,84 +447,154 @@ for (i in nome_colunas_cat) {
 resultados
 
 ```
+--
 
+Análise Temporal (Mês)
+
+```{R Percentual de aquisição do produto por Mês'}
+
+a <- base %>%
+  group_by(month, y) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(Perc = (n / sum(n)) * 100)
+    
+p <- ggplot(a, aes(x = month, y = Perc, fill = y)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = paste("Distribuição por", i),
+       x = i,
+       y = "Percentual",
+       fill = "target") +
+  coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+
+print(p)
+
+
+```
+
+``` {R Taxa de conversão x média taxa de juros para cada Mês}
+
+conversion_rates <- base %>%
+  group_by(month) %>%
+  summarise(conversion_rate = sum(y == "yes") / n())
+
+mean_ver <- base %>%
+  group_by(month) %>%
+  summarise(mean_ver = mean(emp.var.rate))
+
+conversion_rates <- conversion_rates %>%
+  left_join(mean_ver, by = "month") %>%  
+  arrange(desc(conversion_rate))
+
+p <- ggplot(conversion_rates, aes(x = reorder(month, conversion_rate), y = conversion_rate, fill = month)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  geom_text(aes(label = paste0(round(mean_ver, 2))), 
+            position = position_dodge(width = 0.9), vjust = -3, color = "red") +
+  labs(title = "% de Aquisição do Produto por Mês",
+       x = "Mês",
+       y = "Percentual",
+       fill = "Mês") +
+  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+print(p)
+
+```
 ``` {R Percentual por resposta em cada categoria - Variáveis categóricas}
 
-for (i in nome_colunas_cat) {
-  a <- base %>%
-    group_by(!!sym(i), y) %>%
-    summarise(n = n(), .groups = 'drop') %>%
-    mutate(Perc = (n / sum(n)) * 100)
-    
-  p <- ggplot(a, aes(x = !!sym(i), y = Perc, fill = y)) +
-    geom_bar(stat = "identity", position = "dodge") +
-    geom_text(aes(label = paste0(round(Perc, 1), "%")), 
-              position = position_dodge(width = 0.9), vjust = -0.5) +
-    labs(title = paste("Distribuição das categorias em", i, "por resposta"),
-         x = i,
-         y = "Percentual",
-         fill = "target") +
-    coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
-    theme_minimal() +
-    theme(legend.position = "top",
-          axis.text.x = element_text(angle = 45, hjust = 1)) +
-    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
-
-  print(p)
-}
-
-
-# Crie tabelas de contingência e gráficos de barras para entender a 
-# distribuição das categorias em variáveis categóricas em relação à 
-# variável de destino ("sim" ou "não" para adquirir o depósito bancário a prazo).
+#for (i in nome_colunas_cat) {
+#  a <- base %>%
+#    group_by(!!sym(i), y) %>%
+#    summarise(n = n(), .groups = 'drop') %>%
+#    mutate(Perc = (n / sum(n)) * 100)
+#    
+#  p <- ggplot(a, aes(x = !!sym(i), y = Perc, fill = y)) +
+#    geom_bar(stat = "identity", position = "dodge") +
+#    geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+#              position = position_dodge(width = 0.9), vjust = -0.5) +
+#    labs(title = paste("Distribuição das categorias em", i, "por resposta"),
+#         x = i,
+#         y = "Percentual",
+#         fill = "target") +
+#    coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+#    theme_minimal() +
+#    theme(legend.position = "top",
+#          axis.text.x = element_text(angle = 45, hjust = 1)) +
+#    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+#
+#  print(p)
+#}
 
 
 ```
 
 ``` {R Taxa de Conversão - Variáveis categóricas}
 
-for (i in nome_colunas_cat) {
-  conversion_rates <- base %>%
-    group_by(!!sym(i)) %>%
-    summarise(conversion_rate = sum(y == "yes") / n())
-  
-  conversion_rates <- conversion_rates %>%
-    arrange(desc(conversion_rate))
-  
-  print(conversion_rates)
-}
-
-
-# Calcule as taxas de conversão para cada categoria e avalie 
-# a influência potencial de cada variável categórica na decisão. 
+#for (i in nome_colunas_cat) {
+#  conversion_rates <- base %>%
+#    group_by(!!sym(i)) %>%
+#    summarise(conversion_rate = sum(y == "yes") / n())
+#  
+#  conversion_rates <- conversion_rates %>%
+#    arrange(desc(conversion_rate))
+#  
+#  print(conversion_rates)
+#}
 
 ```
-######## Target:
 
-```{R Análise Temporal da 'target'}
+``` {R Percentual por resposta em cada categoria - Variáveis numéricas}
 
-nome_colunas_tempo <- c("month", "day_of_week")
+#for (i in nome_colunas_num) {
+#  a <- base %>%
+#    group_by(!!sym(i), y) %>%
+#    summarise(n = n(), .groups = 'drop') %>%
+#    mutate(Perc = (n / sum(n)) * 100)
+#    
+#  p <- ggplot(a, aes(x = !!sym(i), y = Perc, fill = y)) +
+#    geom_bar(stat = "identity", position = "dodge") +
+#    geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+#              position = position_dodge(width = 0.9), vjust = -0.5) +
+#    labs(title = paste("Distribuição das categorias em", i, "por resposta"),
+#         x = i,
+#         y = "Percentual",
+#         fill = "target") +
+#    coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+#    theme_minimal() +
+#    theme(legend.position = "top",
+#          axis.text.x = element_text(angle = 45, hjust = 1)) +
+#    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+#
+#  print(p)
+#}
 
-for (i in nome_colunas_tempo) {
-  
-  a <- base %>% 
-    group_by(!!sym(i), y) %>% 
-    summarise(n = n(), .groups = 'drop')
-  
-  p <- ggplot(a, aes(x = !!sym(i), y = n, fill = y)) +
-    geom_bar(stat = "identity", position = "dodge") +
-    labs(title = paste("Histograma de Barras Agrupadas por", i),
-         x = i, y = "Contagem",
-         fill = "target") +
-    scale_fill_manual(values = c("#1f78b4", "#a6cee3")) +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  
-  print(p)
-  
-}
 
 ```
+
+``` {R Taxa de Conversão - Variáveis numéricas}
+
+#for (i in nome_colunas_num) {
+#  conversion_rates <- base %>%
+#    group_by(!!sym(i)) %>%
+#    summarise(conversion_rate = sum(y == "yes") / n())
+#  
+#  conversion_rates <- conversion_rates %>%
+#    arrange(desc(conversion_rate))
+#  
+#  print(conversion_rates)
+#}
+
+```
+
 ############### Modelo ML - Árvore de Decisão:
 
 ```{r Separação dados de Treino e Teste}
