@@ -2,7 +2,7 @@
 title: "Árvore de Decisão - Modelo de Machine Learning"
 author: Laura Mº de Souza Romano
 linkedin: https://www.linkedin.com/in/laura-maria-de-souza-romano/
-database: https://archive.ics.uci.edu/dataset/222/bank+marketing 
+database: https://archive.ics.uci.edu/dataset/222/bank+marketing | https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing
 ---
 
 ``` {R Descrição do projeto}
@@ -61,7 +61,7 @@ Observação importante: esse atributo afeta muito o destino de saída (por exem
 13 - pdays: dias que se passaram desde que o cliente foi contatado pela última vez em uma campanha anterior 
 (numérico, 999 significa que o cliente não teve contato prévio)
 
-14 - previous: número de contactos realizados antes desta campanha e para este cliente (numérico)
+14 - previous: número de contatos realizados antes desta campanha e para este cliente (numérico)
 
 15 - poutcome: resultado da campanha de marketing anterior 
 (categórico: 'failure','nonexistent','success')   
@@ -94,7 +94,6 @@ library(tidyr)
 ```{r Leitura da base}
 
 base <- read.csv2("bank-additional-full.csv")
-# View(base)
 
 ```
 
@@ -104,7 +103,7 @@ str(base)
 
 ```
 
-Observamos que a maioria das variáveis se enquadra em dois tipos: inteiro (int) e caractere (chr). É necessário efetuar um ajuste nas variáveis que devem ser definidas como categóricas. Além disso, para evitar possíveis problemas, converteremos as variáveis do tipo inteiro em numéricas (num). Também iremos criar algumas variáveis a fim de facilitar nossa análise.
+Observamos que a maioria das variáveis se enquadra em dois tipos: inteiro (int) e caractere (chr). É necessário efetuar um ajuste nas variáveis que devem ser definidas como categóricas. Além disso, para evitar possíveis problemas, converteremos as variáveis do tipo inteiro em numéricas (num). Também iremos criar algumas variáveis a fim de facilitar nossa análise. 
 
 A seguir, demonstramos o código que realiza tais ajustes:
 
@@ -140,6 +139,11 @@ base$campaign <- as.numeric(base$campaign)
 base$pdays <- as.numeric(base$pdays)
 base$previous <- as.numeric(base$previous)
 
+
+#colunas_para_remover <- c("duration")
+#base <- base[, !(names(base) %in% colunas_para_remover)]
+
+
 base$emp.var.rate <- as.numeric(base$emp.var.rate)
 base$cons.price.idx <- as.numeric(base$cons.price.idx)
 base$cons.conf.idx <- as.numeric(base$cons.conf.idx)
@@ -158,6 +162,7 @@ base <- base %>%
 
 base$age_range <- as.factor(base$age_range)
 
+
 str(base)
 
 ```
@@ -171,7 +176,7 @@ print(missing_proportions)
 
 ```
 
-############### Análise Exploratória e levantamentos estatísticos:
+############### Análise Exploratória:
 
 
 ``` {R Dados Estatísticos - Variáveis numéricas}
@@ -187,43 +192,38 @@ t(summary(colunas_numericas))
 
 ``` {R Distribuição - Variáveis numéricas}
 
-par(mfrow = c(2, 5)) # subplot
+## melhorar esses gráficos ##
+
+#par(mfrow = c(2, 5)) 
 
 for (i in nome_colunas_num) {
   hist(base[[i]], main = paste(i), xlab = i, col = "#1f78b4")
 }
 
-# Use gráficos de dispersão ou box plots para visualizar 
-# a relação entre variáveis numéricas e a variável de destino.
+```
+``` {R Distribuição - Variáveis categóricas}
+
+colunas_cat <- base %>% 
+  select_if(is.factor)
+nome_colunas_cat <- colnames(colunas_cat) 
+
+## melhorar esses gráficos ##
+
+#par(mfrow = c(2, 5))
+
+for (i in nome_colunas_cat) {
+  barplot(table(base[[i]]), main = paste(i), xlab = i, col = "#1f78b4")
+}
+
 
 ```
+
 Algumas informações sobre as variáveis numéricas:
 
-- A idade média das pessoas constatadas é de 40 anos, mas há clientes na faixa dos 80-90 anos. (age)
-- Em média, os cliente foram constatados aproximandamento 3 vezes até realizar sua decisão. (campaign)
-- As ligações duram em médias 300 segundos, 5 minutos. (duration)
-- A maior parte dos clientes não havia sido contato em campanhias anteriores. (pdays)
-
-``` {R Boxplot das variáveis numéricas}
-
-#for (i in nome_colunas_num) {
-#  p <- ggplot(base, aes(x = y, y = !!sym(i), fill = y)) +
-#    geom_boxplot() +
-#    labs(title = paste("Box Plot de Target em relação à", i),
-#         x = "Variável Y", 
-#         y = i,
-#         fill = "Variável Y") +
-#    theme_minimal() +
-#    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
-
-#  print(p)
-#}
-
-# Use gráficos de dispersão ou box plots para visualizar 
-# a relação entre variáveis numéricas e a variável de destino.
-
-```
-
+- A idade média das pessoas constatadas é de 40 anos, mas há clientes na faixa dos 80-90 anos. 
+- Em média, os cliente foram constatados aproximandamento 3 vezes até realizar sua decisão.
+- As ligações duram em médias 300 segundos, 5 minutos.
+- A maior parte dos clientes não havia sido contato em campanhias anteriores.
 
 ``` {R Percentual de aquisição do produto por Faixa de Idade}
 
@@ -236,7 +236,7 @@ p <- ggplot(a, aes(x = age_range, y = Perc, fill = y)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(aes(label = paste0(round(Perc, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = paste("Percentual de aquisição do produto por faixa de idade"),
+  labs(title = paste("Percentual de aquisição do produto por Faixa de Idade"),
         x = i,
         y = "Percentual",
          fill = "target") +
@@ -295,6 +295,7 @@ print(p)
 
 
 ```
+
 ``` {R Taxa de Conversão por Profissão para cada Faixa de Idade}
 
 age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
@@ -358,6 +359,7 @@ print(p)
 }
 
 ```
+
 ``` {R Taxa de Conversão por Nivel Educacional}
 
 conversion_rates <- base %>%
@@ -399,57 +401,9 @@ Na faixa etária "Mais de 70" anos, 83,3% são pessoas sem profissão conhecida.
 
 Por outro lado, os trabalhadores de limpeza apresentam uma taxa de conversão de 57,1%, enquanto os aposentados têm uma taxa de 46,9%. Esses grupos podem não possuir conhecimento aprofundado em questões financeiras e, possivelmente, tenham adquirido o produto por desconhecerem uma variedade maior de opções ou por influência direta do atendente. Ambas as profissões têm valores muito baixos de aquisição em outras faixas etárias. Outro ponto que corrobora para essa análise é que na faixa de "Mais de 70" anos, 100% das pessoas analfabetas adquiriram o porduto, seguindo de 68,2% de pessoas sem profissão conhecida, o que pode indicar a influência significativa do contato direto com os atendentes ou a falta de familiaridade com alternativas no mercado.
 
-| Conclusões gerais:
 
-Quanto aos idosos, com uma taxa de conversão de 47,9%, seu interesse no produto pode ser motivado pelo desejo de preservar e administrar cuidadosamente os recursos financeiros acumulados ao longo da vida. A alta taxa de conversão sugere que esse grupo demográfico percebe o depósito a prazo como uma forma segura e confiável de manter seus fundos. Além disso, para idosos que não atuam em áreas administrativas, é possível considerar que, devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes, sendo levando pelo poder de persuasão dos atendentes.
+Agora, vamos analisar mais profundamento outras questão que podem estar ligadas com a aquisição do produto, como questão econômicas e sociais.
 
-Essa consideração pode explicar a taxa de conversão relativamente menor nas faixas etárias de 18 a 30 e de 51 a 70, onde uma parcela mais ampla da população possivelmente tenha uma base de conhecimento em finanças e investimentos, levando-os a explorar diferentes tipos de produtos financeiros para atender às suas necessidades específicas.
-
-Para os jovens das faixas de "Menos de 18" e "18-30" anos, percebe-se nessa modalidade de investimento uma oportunidade de criar uma reserva de emergência ou acumular recursos para metas de curto prazo, como a aquisição de bens de valor ou custos associados à educação superior. Além disso, a escolha desse produto pode refletir a busca por segurança e estabilidade financeira, visto que os depósitos a prazo geralmente garantem retornos previsíveis e são considerados menos arriscados em comparação com outras formas de investimento.
-
-Por fim, observa-se uma alta taxa de conversão de pessoas desempregadas nas faixas de "18-30", "31-50" e "51-70", devido às características deste tipo de produto e possivelmente à falta de conhecimento sobre questões financeiras e de investimento.
-
---
-
-Correlações:
-
-``` {R Análise de Correlação - Variáveis numéricas}
-
-target <- ifelse(base$y == "yes", 1, 0) 
-
-correlations <- sapply(colunas_numericas, function(var) cor(var, target)) 
-correlation_df <- data.frame(Correlação = correlations) 
-correlation_df
-
-```
-``` {R Análise de Correlação - Variáveis categóricas}
-
-colunas_categoricas <- base %>%
-  select_if(is.factor)
-
-nome_colunas_cat <- colnames(colunas_categoricas)
-nome_colunas_cat <- nome_colunas_cat[nome_colunas_cat != 'y'] # removendo a coluna 'y' (target)
-nome_colunas_cat <- nome_colunas_cat[nome_colunas_cat != 'month'] # removendo a coluna 'month' (target)
-nome_colunas_cat <- nome_colunas_cat[nome_colunas_cat != 'day_of_week'] # removendo a coluna 'day_of_week' (target)
-
-resultados <- data.frame(Categoria = character(0), PValor = numeric(0))
-
-for (i in nome_colunas_cat) {
-  contingency_table <- table(base[[i]], base$y)
-  chi_squared <- chisq.test(contingency_table)
-  validacao <- ifelse(chi_squared$p.value < 0.05, 'Há correlação', 'Não há correlação')
-  
-  novo_registro <- data.frame(Categoria = i, PValor = chi_squared$p.value, Correlação = validacao)
-
-  resultados <- rbind(resultados, novo_registro)
-}
-
-resultados
-
-```
---
-
-Análise Temporal (Mês)
 
 ```{R Percentual de aquisição do produto por Mês'}
 
@@ -462,7 +416,7 @@ p <- ggplot(a, aes(x = month, y = Perc, fill = y)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(aes(label = paste0(round(Perc, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = paste("Distribuição por", i),
+  labs(title = paste("Percentual de aquisição do produto por Mês"),
        x = i,
        y = "Percentual",
        fill = "target") +
@@ -496,8 +450,8 @@ p <- ggplot(conversion_rates, aes(x = reorder(month, conversion_rate), y = conve
   geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
   geom_text(aes(label = paste0(round(euribor3m, 2))), 
-            position = position_dodge(width = 0.9), vjust = -3, color = "red") +
-  labs(title = "% de Aquisição do Produto por Mês",
+            position = position_dodge(width = 0.9), vjust = -3, color = "#1f78b4") +
+  labs(title = "% de Aquisição do Produto x Média Taxa de Juros por Mês",
        x = "Mês",
        y = "Percentual",
        fill = "Mês") +
@@ -509,93 +463,83 @@ p <- ggplot(conversion_rates, aes(x = reorder(month, conversion_rate), y = conve
 print(p)
 
 ```
-``` {R Percentual por resposta em cada categoria - Variáveis categóricas}
+Observamos que o mês de Maio registrou a mais alta taxa de recusa do produto, atingindo 31,3%. Coincidentemente, maio também apresentou a menor taxa de conversão, com apenas 6,4%. Além disso, neste mês, constatamos a quinta maior média de taxa de juros dentro do período analisado.
 
-#for (i in nome_colunas_cat) {
-#  a <- base %>%
-#    group_by(!!sym(i), y) %>%
-#    summarise(n = n(), .groups = 'drop') %>%
-#    mutate(Perc = (n / sum(n)) * 100)
-#    
-#  p <- ggplot(a, aes(x = !!sym(i), y = Perc, fill = y)) +
-#    geom_bar(stat = "identity", position = "dodge") +
-#    geom_text(aes(label = paste0(round(Perc, 1), "%")), 
-#              position = position_dodge(width = 0.9), vjust = -0.5) +
-#    labs(title = paste("Distribuição das categorias em", i, "por resposta"),
-#         x = i,
-#         y = "Percentual",
-#         fill = "target") +
-#    coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
-#    theme_minimal() +
-#    theme(legend.position = "top",
-#          axis.text.x = element_text(angle = 45, hjust = 1)) +
-#    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
-#
-#  print(p)
-#}
+Por outro lado, março se destacou ao conquistar a maior taxa de conversão, alcançando 50,5%, e ostentou a terceira menor média de taxa de juros, registrando apenas 1,16%.
 
+É possível deduzir que a diminuição das taxas de juros estimulou uma maior adesão ao produto. Isso se explica pelo fato de que, com juros reduzidos, os clientes enfrentam encargos menores, o que torna a aquisição do produto mais vantajosa. Notavelmente, dentre os cinco meses com as taxas de conversão mais elevadas (Março, Dezembro, Setembro, Outubro e Abril), estão também os cinco meses com as menores taxas de juros do período analisado.
 
-```
+```{R Percentual de aquisição do produto por Estado Civíl'}
 
-``` {R Taxa de Conversão - Variáveis categóricas}
+a <- base %>%
+  group_by(marital, y) %>%
+  summarise(n = n(), .groups = 'drop') %>%
+  mutate(Perc = (n / sum(n)) * 100)
+    
+p <- ggplot(a, aes(x = marital, y = Perc, fill = y)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = paste("Percentual de aquisição do produto por Estado Civil"),
+       x = i,
+       y = "Percentual",
+       fill = "target") +
+  coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
 
-#for (i in nome_colunas_cat) {
-#  conversion_rates <- base %>%
-#    group_by(!!sym(i)) %>%
-#    summarise(conversion_rate = sum(y == "yes") / n())
-#  
-#  conversion_rates <- conversion_rates %>%
-#    arrange(desc(conversion_rate))
-#  
-#  print(conversion_rates)
-#}
-
-```
-
-``` {R Percentual por resposta em cada categoria - Variáveis numéricas}
-
-#for (i in nome_colunas_num) {
-#  a <- base %>%
-#    group_by(!!sym(i), y) %>%
-#    summarise(n = n(), .groups = 'drop') %>%
-#    mutate(Perc = (n / sum(n)) * 100)
-#    
-#  p <- ggplot(a, aes(x = !!sym(i), y = Perc, fill = y)) +
-#    geom_bar(stat = "identity", position = "dodge") +
-#    geom_text(aes(label = paste0(round(Perc, 1), "%")), 
-#              position = position_dodge(width = 0.9), vjust = -0.5) +
-#    labs(title = paste("Distribuição das categorias em", i, "por resposta"),
-#         x = i,
-#         y = "Percentual",
-#         fill = "target") +
-#    coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
-#    theme_minimal() +
-#    theme(legend.position = "top",
-#          axis.text.x = element_text(angle = 45, hjust = 1)) +
-#    scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
-#
-#  print(p)
-#}
+print(p)
 
 
 ```
 
-``` {R Taxa de Conversão - Variáveis numéricas}
+``` {R Taxa de conversão por Estado Civíl}
 
-#for (i in nome_colunas_num) {
-#  conversion_rates <- base %>%
-#    group_by(!!sym(i)) %>%
-#    summarise(conversion_rate = sum(y == "yes") / n())
-#  
-#  conversion_rates <- conversion_rates %>%
-#    arrange(desc(conversion_rate))
-#  
-#  print(conversion_rates)
-#}
+conversion_rates <- base %>%
+  group_by(marital) %>%
+  summarise(conversion_rate = sum(y == "yes") / n())
+
+conversion_rates <- conversion_rates %>%
+  arrange(desc(conversion_rate))
+
+
+p <- ggplot(conversion_rates, aes(x = reorder(marital, conversion_rate), y = conversion_rate, fill = marital)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "Percentual de Aquisição do Produto por Estado Civíl",
+       x = "Faixa de Idade",
+       y = "Percentual",
+       fill = "Faixa de Idade") +
+  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+print(p)
+
+## realizar conclusão sobre análise de estado civil ##
 
 ```
 
-############### Modelo ML - Árvore de Decisão:
+[Conclusões Gerais]
+
+Em relação as pessoas idosas, com uma taxa de conversão de 47,9%, seu interesse no produto pode ser motivado pelo desejo de preservar e administrar cuidadosamente os recursos financeiros acumulados ao longo da vida. A alta taxa de conversão sugere que esse grupo demográfico percebe o depósito a prazo como uma forma segura e confiável de manter seus fundos. Além disso, para idosos que não atuam em áreas administrativas, é possível considerar que, devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes, sendo levando pelo poder de persuasão dos atendentes.
+
+Essa consideração pode explicar a taxa de conversão relativamente menor nas faixas etárias de 18 a 30 e de 51 a 70, onde uma parcela mais ampla da população possivelmente tenha uma base de conhecimento em finanças e investimentos, levando-os a explorar diferentes tipos de produtos financeiros para atender às suas necessidades específicas.
+
+Para os jovens das faixas de "Menos de 18" e "18-30" anos, percebe-se nessa modalidade de investimento uma oportunidade de criar uma reserva de emergência ou acumular recursos para metas de curto prazo, como a aquisição de bens de valor ou custos associados à educação superior. Além disso, a escolha desse produto pode refletir a busca por segurança e estabilidade financeira, visto que os depósitos a prazo geralmente garantem retornos previsíveis e são considerados menos arriscados em comparação com outras formas de investimento.
+
+Por fim, observa-se uma alta taxa de conversão de pessoas desempregadas nas faixas de "18-30", "31-50" e "51-70", devido às características deste tipo de produto e possivelmente à falta de conhecimento sobre questões financeiras e de investimento.
+
+Observamos que o mês de Maio registrou a mais alta taxa de recusa do produto, atingindo 31,3%. Coincidentemente, maio também apresentou a menor taxa de conversão, com apenas 6,4%. Além disso, neste mês, constatamos a quinta maior média de taxa de juros dentro do período analisado.
+
+Por outro lado, março se destacou ao conquistar a maior taxa de conversão, alcançando 50,5%, e ostentou a terceira menor média de taxa de juros, registrando apenas 1,16%.
+
+É possível deduzir que a diminuição das taxas de juros estimulou uma maior adesão ao produto. Isso se explica pelo fato de que, com juros reduzidos, os clientes enfrentam encargos menores, o que torna a aquisição do produto mais vantajosa. Notavelmente, dentre os cinco meses com as taxas de conversão mais elevadas (Março, Dezembro, Setembro, Outubro e Abril), estão também os cinco meses com as menores taxas de juros do período analisado.
+
+############### Árvore de Decisão:
 
 ```{r Separação dados de Treino e Teste}
 
@@ -648,6 +592,7 @@ resultdt <- as.factor(ifelse(preddt[,2] > 0.5, "yes", "no")) # preddt[,2] - colu
 resultdt
 
 ```
+
 ######## Desempenho do Modelo:
 
 ``` {R Matriz de Confusão}
