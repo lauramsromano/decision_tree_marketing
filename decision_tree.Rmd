@@ -1,82 +1,83 @@
 ---
-title: "Árvore de Decisão - Modelo de Machine Learning"
-author: Laura Mº de Souza Romano
-linkedin: https://www.linkedin.com/in/laura-maria-de-souza-romano/
-database: https://archive.ics.uci.edu/dataset/222/bank+marketing | https://www.kaggle.com/datasets/henriqueyamahata/bank-marketing
+title: 'Previsão de Clientes em Instituições Financeiras: Exploração de Dados e Modelagem de Machine Learning para Estratégias de Marketing Bancário'
 ---
 
-``` {R Descrição do projeto}
+date: 16 de Setembro de 2023
 
-Os dados estão relacionados com campanhas de marketing direto de uma instituição bancária portuguesa. Essas campanhas de marketing foram baseadas em telefonemas e, em muitos casos, era necessário mais do que um contato para o mesmo cliente, para saber se o produto (depósito bancário a prazo) seria ("sim") ou não ("não") adquirido.
+author: Laura Maria de Souza Romano, [linkedin](https://www.linkedin.com/in/laura-maria-de-souza-romano/) | [e-mail](laura.sromano@hotmail.com)
 
-A ideia desser projeto é criar um modelo para categorizar novoc clientes como potenciais adquiridores do produto.
+[github](https://github.com/lauramsromano/decision_tree) | [positcloud](https://posit.cloud/content/6324494) | [rpubs](https://rpubs.com/lauramsromano/decision_tree)
 
-Para isso, usaremos um modelo de árvore de decisão que nos permitirá tomar decisões lógicas e segmentar os clientes em grupos com maior probabilidade de adquirir o produto ("sim") ou não ("não"). As árvores de decisão são algoritmos de aprendizado de máquina que dividem o conjunto de dados em subgrupos com base nas características dos clientes, de modo que cada subgrupo seja o mais puro possível em relação à variável de destino, neste caso, a decisão de adquirir ou não o depósito bancário a prazo.
+- Introdução:  
 
-O processo de construção da árvore de decisão envolve a seleção de variáveis independentes (como idade, ocupação, estado civil, etc.) que podem ser relevantes para prever a resposta desejada. A árvore de decisão divide os dados em ramos, onde cada ramo representa uma escolha entre diferentes valores de uma variável independente. Cada folha da árvore representa uma decisão final, que neste caso seria a previsão da resposta do cliente à campanha de marketing.
+Os dados estão vinculados às campanhas de marketing direto realizadas por uma instituição bancária portuguesa. Estas campanhas foram executadas principalmente por meio de chamadas telefônicas e, em muitos casos, exigiram múltiplos contatos com o mesmo cliente. Isso visava determinar se o cliente tinha interesse em adquirir o produto oferecido (depósito bancário a prazo) ou não. 
+
+O objetivo central deste projeto consiste em desenvolver um modelo capaz de classificar novos clientes como potenciais compradores do produto. Para alcançar essa meta, será empregado um modelo baseado em árvore de decisão. Esse modelo nos permitirá tomar decisões de forma lógica, segmentando os clientes em grupos com diferentes níveis de probabilidade de adquirir o produto ("sim") ou recusar ("não").
+
+As árvores de decisão, como algoritmos de aprendizado de máquina, operam ao dividir o conjunto de dados em subgrupos com base nas características individuais dos clientes. Cada subgrupo busca ser o mais homogêneo possível em relação à variável alvo, que, neste caso, é a decisão de adquirir ou não o depósito bancário a prazo.
+
+Adicionalmente, uma análise exploratória dos dados será conduzida para investigar as interações entre as variáveis e determinar a influência relativa de cada uma na decisão final do cliente.
 
 
-```
+- O Modelo de Árvore de Decisão:
 
-``` {R Sumário de variáveis}
+A construção da árvore de decisão é um processo que começa com a seleção de variáveis independentes significativas que têm potencial para influenciar a resposta desejada. Essas variáveis são as ferramentas-chave para fazer previsões relevantes. A árvore de decisão, então, fragmenta os dados em ramos, onde cada ramo retrata uma bifurcação nas escolhas com base nos diferentes valores de uma variável independente.
+
+Cada ramo subsequente se aprofunda em decisões mais específicas à medida que os valores das variáveis se desdobram. O processo culmina nas folhas da árvore, que representam as conclusões finais do modelo. No contexto das campanhas de marketing, cada folha contém uma decisão final, que, neste caso, se refere à previsão da resposta que um cliente possivelmente terá em relação à campanha.
+
+A árvore de decisão, assim, se revela como uma ferramenta analítica poderosa, capaz de traduzir a complexidade dos dados em uma hierarquia de escolhas lógicas, permitindo tomar decisões informadas para estratégias de marketing direcionadas.
+
+
+- Sumário das Variáveis:
 
 1 - age: idade (numérica)
 
-2 - job: tipo de trabalho
-(categórica: 'admin.','blue-collar','entrepreneur','housemaid',
-'management','retired','self-employed','services','student','technician','unemployed','unknown')
+2 - job: tipo de trabalho (categórica: 'admin.','blue-collar','entrepreneur','housemaid', 'management','retired','self-employed','services','student', 'technician','unemployed','unknown')
 
-3 - marital: estado civíl
-(categórica: 'divorced','married','single','unknown'; 
-note: 'divorced' means divorced or widowed)
+3 - marital: estado civíl (categórica: 'divorced','married','single','unknown'; #note: 'divorced' means divorced or widowed)
 
-4 - education: nível educacional
-(categórica: 'basic.4y','basic.6y','basic.9y','high.school','illiterate',
-'professional.course','university.degree','unknown')
+4 - education: nível educacional (categórica: 'basic.4y','basic.6y','basic.9y','high.school', 'illiterate','professional.course','university.degree','unknown')
 
-5 - default: tem crédito em inadimplência?
-(categórica: 'no','yes','unknown')
+5 - default: tem crédito em inadimplência? (categórica: 'no','yes','unknown')
 
-6 - housing: tem crédito habitação?
-(categórica: 'no','yes','unknown')
+6 - housing: tem crédito habitação? (categórica: 'no','yes','unknown')
 
-7 - loan: tem empréstimo pessoal? 
-(categórica: 'no','yes','unknown') 
+7 - loan: tem empréstimo pessoal? (categórica: 'no','yes','unknown') 
 
-8 - contact: tipo de comunicação de contato 
-(categórica: 'cellular','telephone') 
+8 - contact: tipo de comunicação de contato (categórica: 'cellular','telephone') 
 
-9 - month: mês do ano de último contato
-(categórica: 'jan', 'feb', 'mar', ..., 'nov', 'dec')
+9 - month: mês do ano de último contato (categórica: 'jan', 'feb', 'mar', ..., 'nov', 'dec')
 
-10 - day_of_week: dia da semana de último contato
-(categórica: 'mon','tue','wed','thu','fri')
+10 - day_of_week: dia da semana de último contato (categórica: 'mon','tue','wed','thu','fri')
 
 11 - duration: duração do último contato, em segundo (numérico). 
 Observação importante: esse atributo afeta muito o destino de saída (por exemplo, se duração=0, então y='não'). No entanto, a duração não é conhecida antes de uma chamada ser realizada. Além disso, após o final da chamada, y é obviamente conhecido. Assim, esta entrada deve ser incluída apenas para fins de benchmark e deve ser descartada se a intenção seja ter um modelo preditivo realista.
 
-12 - campaign: número de contactos realizados nesta campanha e para este cliente 
-(numérico, inclue último contato)
+12 - campaign: número de contactos realizados nesta campanha e para este cliente (numérico, inclue último contato)
 
-13 - pdays: dias que se passaram desde que o cliente foi contatado pela última vez em uma campanha anterior 
-(numérico, 999 significa que o cliente não teve contato prévio)
+13 - pdays: dias que se passaram desde que o cliente foi contatado pela última vez em uma campanha anterior (numérico, 999 significa que o cliente não teve contato prévio)
 
 14 - previous: número de contatos realizados antes desta campanha e para este cliente (numérico)
 
-15 - poutcome: resultado da campanha de marketing anterior 
-(categórico: 'failure','nonexistent','success')   
+15 - poutcome: resultado da campanha de marketing anterior (categórico: 'failure','nonexistent','success') 
 
 16 - emp.var.rate: taxa de variação do emprego - indicador trimestral (numérico)
-17 - cons.price.idx: índice de preços ao consumidor - indicador mensal (numérico)   
-18 - cons.conf.idx: índice de confiança do consumidor - indicador mensal (numérico)    
-19 - euribor3m: taxa euribor (indica a taxa de juros média dos empréstimos interbancários sem garantia da Zona Euro) a 3 meses - indicador diário (numérico)
-20 - nr.employed: número de funcionários - indicador trimestral (numérico)
-21 - y: target, diz se o cliente aderiu ou não o produto 
-(categórica: 'no','yes')
 
-```
+17 - cons.price.idx: índice de preços ao consumidor - indicador mensal (numérico)  
+
+18 - cons.conf.idx: índice de confiança do consumidor - indicador mensal (numérico)  
+
+19 - euribor3m: taxa euribor (indica a taxa de juros média dos empréstimos interbancários sem garantia da Zona Euro) a 3 meses - indicador diário (numérico)
+
+20 - nr.employed: número de funcionários - indicador trimestral (numérico)
+
+21 - y: target, diz se o cliente aderiu ou não o produto (categórica: 'no','yes')
+
+- Tratamento da base:
 
 ```{R Bibliotecas utilizadas}
+
+Sys.setlocale(category = "LC_ALL", locale = "pt_BR.UTF-8")
 
 library(readr)
 library(rsample)
@@ -89,8 +90,13 @@ library(rpart)
 library(rpart.plot)
 library(ggplot2)
 library(tidyr)
+library(mltools)
+library(data.table)
+library(glmnet)
+library(patchwork)
+library(scales)
+library(cowplot)
 ```
-
 ```{r Leitura da base}
 
 base <- read.csv2("bank-additional-full.csv")
@@ -102,25 +108,25 @@ base <- read.csv2("bank-additional-full.csv")
 str(base)
 
 ```
-
-Observamos que a maioria das variáveis se enquadra em dois tipos: inteiro (int) e caractere (chr). É necessário efetuar um ajuste nas variáveis que devem ser definidas como categóricas. Além disso, para evitar possíveis problemas, converteremos as variáveis do tipo inteiro em numéricas (num). Também iremos criar algumas variáveis a fim de facilitar nossa análise. 
+Observamos que a maioria das variáveis se enquadra em dois tipos: inteiro (int) e caractere (chr). 
+É necessário efetuar um ajuste nas variáveis que devem ser definidas como categóricas. 
+Além disso, para evitar possíveis problemas, converteremos as variáveis do tipo inteiro em numéricas (num). 
+Também iremos criar algumas variáveis a fim de facilitar nossa análise. 
 
 A seguir, demonstramos o código que realiza tais ajustes:
 
-``` {R Ajuste na base}
+``` {R Ajustes na base}
 
 # Colunas temporais:
-
 base$month <- factor(base$month, levels = c("jan", "feb", "mar", "apr", "may", "jun",
                                             "jul", "aug", "sep", "oct", "nov", "dec"),
                      labels = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
                                 "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
 
 base$day_of_week <- factor(base$day_of_week, levels = c("mon", "tue", "wed", "thu", "fri", "sat", "sun"),
-                           labels = c("Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"))
+                           labels = c("Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sabado", "Domingo"))
 
 # Colunas categóricas:
-
 base$job <- as.factor(base$job)
 base$marital <- as.factor(base$marital)
 base$education <- as.factor(base$education)
@@ -132,17 +138,11 @@ base$loan <- as.factor(base$loan)
 base$y <- as.factor(base$y)
 
 # Colunas numéricas:
-
 base$age <- as.numeric(base$age)
 base$duration <- as.numeric(base$duration)
 base$campaign <- as.numeric(base$campaign)
 base$pdays <- as.numeric(base$pdays)
 base$previous <- as.numeric(base$previous)
-
-
-#colunas_para_remover <- c("duration")
-#base <- base[, !(names(base) %in% colunas_para_remover)]
-
 
 base$emp.var.rate <- as.numeric(base$emp.var.rate)
 base$cons.price.idx <- as.numeric(base$cons.price.idx)
@@ -150,7 +150,7 @@ base$cons.conf.idx <- as.numeric(base$cons.conf.idx)
 base$euribor3m <- as.numeric(base$euribor3m)
 base$nr.employed  <- as.numeric(base$nr.employed)
 
-
+# Criando novas colunas:
 base <- base %>%
   mutate(age_range = case_when(
     age <= 18 ~ "Menos de 18",
@@ -162,12 +162,27 @@ base <- base %>%
 
 base$age_range <- as.factor(base$age_range)
 
+base <- base %>%
+  mutate(contact_range = case_when(
+    campaign <= 5 ~ "1-5",
+    campaign <= 10 ~ "6-10",
+    campaign <= 15 ~ "11-15",
+    campaign <= 20 ~ "16-20",
+    campaign <= 25 ~ "21-25",
+    campaign <= 30 ~ "26-30",
+    TRUE ~ "Mais de 30"
+  ))
 
-str(base)
+# Removenos infos com valor de duração = 0
+base <- base[base$duration != 0, ]
+
+# Alterando o valor 999 por 0 
+base$pdays[base$pdays == 999] <- 0
 
 ```
 
-Para o algoritmo que será empregado na categorização, é crucial que não haja valores nulos em nossa base de dados. Portanto, realizaremos uma verificação por meio do seguinte código:
+Para o algoritmo que será empregado na categorização, é crucial que não haja valores nulos em nossa base de dados. 
+Portanto, realizaremos uma verificação por meio do seguinte código:
 
 ``` {R Verificação valores nulos}
 
@@ -176,8 +191,148 @@ print(missing_proportions)
 
 ```
 
-############### Análise Exploratória:
+- Análise Exploratória:
 
+Com o objetivo de aprofundar nossa compreensão sobre a relação entre as variáveis e nossa variável-alvo, iremos examinar cuidadosamente determinados valores e gráficos, além de empregar um modelo de regressão logística. Isso nos permitirá obter insights mais sólidos sobre como as diferentes variáveis estão relacionadas à nossa variável de interesse.
+
+``` {R Distribuição de Profissão, Nivel Educacional e Faixa de Idade}
+
+# Distribuição em Job:
+job_counts <- base %>%
+  group_by(job) %>%
+  summarise(count = n())
+
+total <- sum(job_counts$count)
+job_counts <- job_counts %>% mutate(percentage = (count / total) * 100)
+
+job_plot <- ggplot(job_counts, aes(x = reorder(job,percentage), 
+                                   y = percentage, fill = job)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), vjust = -0.5, size = 3) +
+  labs(x = "Cargo", y = "Percentual (%)", title = "% por Cargo") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Distribuição em Education:
+education_counts <- base %>%
+  group_by(education) %>%
+  summarise(count = n())
+
+total <- sum(education_counts$count)
+education_counts <- education_counts %>% mutate(percentage = (count / total) * 100)
+
+education_plot <- ggplot(education_counts, aes(x =  reorder(education, percentage), 
+                                               y = percentage, fill = education)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), vjust = -0.5, size = 3) +
+  labs(x = "Nivel Educacional", y = "Percentual (%)", title = "% por Nível Educacional") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Distribuição em Faixa de Idade:
+age_range_counts <- base %>%
+  group_by(age_range) %>%
+  summarise(count = n())
+
+total <- sum(age_range_counts$count)
+age_range_counts <- age_range_counts %>% mutate(percentage = (count / total) * 100)
+
+age_plot <- ggplot(age_range_counts, aes(x =  reorder(age_range, percentage), 
+                                         y = percentage, fill = age_range)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), vjust = -0.5, size = 3) +
+  labs(x = "Faixa de Idade", y = "Percentual (%)", title = "% por Faixa de Idade") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Combinação dos gráficos:
+combined_job_education <- plot_grid(
+  job_plot, 
+  education_plot,
+  age_plot, 
+  nrow = 1, 
+  rel_heights = c(2, 2, 2)) +
+  theme(plot.margin = margin(r = 1, unit = "pt"))
+ 
+print(combined_job_education)
+
+```
+
+A cerca do perfil dos clientes:
+
+- A idade (age) dos contatos varia entre 17 e 98 anos, com uma média de aproximadamente 40 anos. A maioria dos contatos encontra-se na faixa entre 31 e 50 anos.
+- 29% dos clientes possuem ensino superior. O segundo maior percentual pertence a pessoas com ensino médio, representando 23,1% dos clientes.
+- O maior percentual (25,3%) é composto por trabalhadores da área administrativa, seguido por trabalhadores "blue-collar", com 22,4%.
+
+``` {R Distribição de Crédito, Inadimplência e Emprestimo Pessoal}
+
+# Distribuição em Default:
+default_counts <- base %>%
+  group_by(default) %>%
+  summarise(count = n())
+
+total <- sum(default_counts$count)
+default_counts <- default_counts %>% mutate(percentage = (count / total) * 100)
+
+default_plot <- ggplot(default_counts, aes(x = reorder(default,percentage), y = percentage, fill = default)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), vjust = -0.5, size = 3) +
+  labs(x = "Inadimplência", y = "Percentual (%)", title = "% por Inadimplência") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Distribuição em Housing:
+housing_counts <- base %>%
+  group_by(housing) %>%
+  summarise(count = n())
+
+total <- sum(housing_counts$count)
+housing_counts <- housing_counts %>% mutate(percentage = (count / total) * 100)
+
+housing_plot <- ggplot(housing_counts, aes(x =  reorder(housing, percentage), y = percentage, fill = housing)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), vjust = -0.5, size = 3) +
+  labs(x = "Crédito Habilitado", y = "Percentual (%)", title = "% por Crédito Habilitado") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Distribuição em Loan:
+loan_counts <- base %>%
+  group_by(loan) %>%
+  summarise(count = n())
+
+total <- sum(loan_counts$count)
+loan_counts <- loan_counts %>% mutate(percentage = (count / total) * 100)
+
+loan_plot <- ggplot(loan_counts, aes(x =  reorder(loan, percentage), y = percentage, fill = loan)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = sprintf("%.1f%%", percentage)), vjust = -0.5, size = 3) +
+  labs(x = "Emprestimo Pessoal", y = "Percentual (%)", title = "% por Emprestimo Pessoal") +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Combinação dos gráficos:
+combined_housing_loan_default <- plot_grid(
+  default_plot, 
+  housing_plot,
+  loan_plot, 
+  nrow = 1, 
+  rel_heights = c(2, 2, 2)
+)  +
+theme(plot.margin = margin(r = 50, unit = "pt"))
+
+print(combined_housing_loan_default)
+
+```
+
+- 52% dos clientes possuem crédito habilitado e 82% teriam empréstimo pessoal.
+- 79% não estão em inadimplência.
 
 ``` {R Dados Estatísticos - Variáveis numéricas}
 
@@ -189,99 +344,226 @@ nome_colunas_num <- colnames(colunas_numericas)
 t(summary(colunas_numericas))
 
 ```
+A cerca das campanhas:
 
-``` {R Distribuição - Variáveis numéricas}
+- O número de contatos realizados na campanha atual (campaign) varia entre 1 e 56, com uma média de aproximadamente 2,57. A maioria dos contatos recebeu entre 1 e 3 ligações.
+- O número de dias desde o último contato (pdays) varia entre 0 e 27 dias, com uma média de cerca de 0,22 dias. A maioria dos contatos foi contatada recentemente.
+- O número de contatos anteriores (previous) realizados varia entre 0 e 7, com uma média de aproximadamente 0,17. A maioria dos contatos não teve contatos anteriores.
 
-## melhorar esses gráficos ##
+A cerca de fatores econômicos e sociais:
+- A taxa de variação do emprego (emp.var.rate) varia de -3,4 a 1,4, com uma média de cerca de 0,08. A maioria dos contatos foi alcançada durante períodos de leve variação positiva.
+- O índice de preços ao consumidor (cons.price.idx) apresenta variação entre 92,20 e 94,77, com média aproximada de 93,58. Esse índice captura mudanças nos preços que afetam os consumidores, sendo que a maioria dos registros corresponde a valores próximos a 93,58. 
+- O índice de confiança do consumidor (cons.conf.idx), varia de -50,8 a -26,9, com média próxima de -40,5. Este índice expressa a confiança dos consumidores nas condições econômicas, e a maioria das observações se concentra em torno de -40,5, sugerindo uma tendência de confiança moderadamente negativa.
 
-#par(mfrow = c(2, 5)) 
+``` {R Regressão Logistica Multipla para inferir relação das variáveis com a target}
 
-for (i in nome_colunas_num) {
-  hist(base[[i]], main = paste(i), xlab = i, col = "#1f78b4")
-}
+base_encoded <- base %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate_if(is.factor, function(x) as.numeric(x) - 1)  
 
-```
-``` {R Distribuição - Variáveis categóricas}
+variaveis_independentes <- base_encoded %>%
+  select(-y)  
 
-colunas_cat <- base %>% 
-  select_if(is.factor)
-nome_colunas_cat <- colnames(colunas_cat) 
+variavel_dependente <- base_encoded$y
 
-## melhorar esses gráficos ##
-
-#par(mfrow = c(2, 5))
-
-for (i in nome_colunas_cat) {
-  barplot(table(base[[i]]), main = paste(i), xlab = i, col = "#1f78b4")
-}
-
+modelo_logistico <- glm(variavel_dependente ~ ., data = variaveis_independentes, family = "binomial")
+summary(modelo_logistico)
 
 ```
 
-Algumas informações sobre as variáveis numéricas:
+Através do modelo de regressão logística, foram analisadas as variáveis que impactam a variável resposta. 
+Os coeficientes estimados revelam insights sobre a relação entre as variáveis independentes e a probabilidade de o evento ocorrer.
 
-- A idade média das pessoas constatadas é de 40 anos, mas há clientes na faixa dos 80-90 anos. 
-- Em média, os cliente foram constatados aproximandamento 3 vezes até realizar sua decisão.
-- As ligações duram em médias 300 segundos, 5 minutos.
-- A maior parte dos clientes não havia sido contato em campanhias anteriores.
+Verificou-se que as variáveis age, job, marital, education, default, month, duration, campaign, pdays, previous, poutcome, emp.var.rate, cons.price.idx, cons.conf.idx, euribor3m e nr.employed apresentam coeficientes positivos. Isso sugere que o aumento dessas variáveis está associado a um aumento nas chances de o evento ocorrer. Por exemplo, um aumento na idade, na duração da última ligação, no número de campanhas anteriores, nas taxas de emprego, nos índices de preços ao consumidor e nas taxas Euribor3m tendem a aumentar a probabilidade do evento em questão.
 
-``` {R Percentual de aquisição do produto por Faixa de Idade}
+Por outro lado, as variáveis default, housing, loan, e day_of_week apresentam coeficientes negativos. Isso indica que o aumento dessas variáveis está associado a uma redução nas chances de o evento ocorrer. Por exemplo, se o cliente tem histórico de inadimplência (default) ou não possui empréstimos (loan), isso tende a diminuir a probabilidade do evento. Da mesma forma, o dia da semana em que o contato foi feito (day_of_week) também tem uma influência negativa nas chances de o evento acontecer.
 
-a <- base %>%
-  group_by(age_range, y) %>%
+a) Análise de Meio de Contato e Quantidade de Contatos:
+
+``` {R Perc de Aquisição e Taxa de Conversão por Meio de Contato}
+
+# Pecentual de Aquisição em Meio de Contato:
+agrup_meio_contato <- base %>%
+  group_by(contact, y) %>%
   summarise(n = n(), .groups = 'drop') %>% 
   mutate(Perc = (n / sum(n)) * 100)
-    
-p <- ggplot(a, aes(x = age_range, y = Perc, fill = y)) +
+
+aquisicao_meio_contato <- ggplot(agrup_meio_contato, aes(x = contact, y = Perc, fill = y)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(aes(label = paste0(round(Perc, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = paste("Percentual de aquisição do produto por Faixa de Idade"),
-        x = i,
-        y = "Percentual",
+  labs(title = paste("% de aquisição por Meio de Contato"),
+        x = "Meio de Contato",
+        y = "Percentual (%)",
          fill = "target") +
-  coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+  coord_cartesian(ylim = c(0, max(agrup_meio_contato$Perc) + 5)) +
   theme_minimal() +
   theme(legend.position = "top",
          axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
 
-print(p)
+# Taxa de Conversão por Meio de Contato:
+conversion_rates_meio_contato <- base %>%
+  group_by(contact) %>%
+  summarise(conversion_rate_meio_contato = (sum(y == "yes") / n()*100))
+
+conversion_rates_meio_contato <- conversion_rates_meio_contato %>%
+  arrange(desc(conversion_rate_meio_contato))
+
+conversao_meio_contato <- ggplot(conversion_rates_meio_contato, aes(x =  reorder(contact, conversion_rate_meio_contato), 
+                                                                    y = conversion_rate_meio_contato, fill = contact)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate_meio_contato, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "% de conversão por Meio de Contato",
+       x = "Meio de Contato",
+       y = "Percentual (%)",
+       fill = "Meio de Contato") +
+  coord_cartesian(ylim = c(0, max(conversion_rates_meio_contato$conversion_rate_meio_contato) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+# Combinação dos gráficos:
+combined_meio_contato <- plot_grid(aquisicao_meio_contato, 
+                                   conversao_meio_contato) +
+theme(plot.margin = margin(r = 20, unit = "pt"))
+print(combined_meio_contato)
 
 ```
-``` {R Taxa de Conversão por Faixa de Idade}
 
-conversion_rates <- base %>%
-  group_by(age_range) %>%
-  summarise(conversion_rate = sum(y == "yes") / n())
+Representando quase 40% do total de contatos realizado, telephone apresenta uma taxa de conversão de apenas 5,2% com comparação com celular, com uma taxa de quase 15% e representa um pouco mais de 60% dos contatos realizados.
 
-conversion_rates <- conversion_rates %>%
-  arrange(desc(conversion_rate))
+``` {R Perc de Aquisição e Taxa de Conversão por Qtd. de Contatos}
 
+# Percentual de Aquisição por Qtd de Contatos:
+agrup_qnt_contato <- base %>%
+  group_by(contact_range, y) %>%
+  summarise(n = n(), .groups = 'drop') %>% 
+  mutate(Perc = (n / sum(n)) * 100)
 
-p <- ggplot(conversion_rates, aes(x = age_range, y = conversion_rate, fill = age_range)) +
+aquisicao_qtd_contato <- ggplot(agrup_qnt_contato, aes(x = contact_range, y = Perc, fill = y)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+  geom_text(aes(label = paste0(round(Perc, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = "Percentual de Aquisição do Produto por Faixa de Idade",
-       x = "Faixa de Idade",
-       y = "Percentual",
-       fill = "Faixa de Idade") +
-  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  labs(title = paste("% de aquisição por Qtd. de Contatos"),
+        x = "Meio de Contato",
+        y = "Percentual (%)",
+         fill = "target") +
+  coord_cartesian(ylim = c(0, max(agrup_qnt_contato$Perc) + 5)) +
   theme_minimal() +
   theme(legend.position = "top",
-        axis.text.x = element_text(angle = 45, hjust = 1)) 
-print(p)
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
 
+# Taxa de Conversão por Qtd de Contatos:
+conversion_rates_qnt_contato <- base %>%
+  group_by(contact_range) %>%
+  summarise(conversion_rate_qtd_contato = (sum(y == "yes") / n())*100)
+
+conversion_rates_qnt_contato <- conversion_rates_qnt_contato %>%
+  arrange(desc(conversion_rate_qtd_contato))
+
+
+conversao_qtd_contato <- ggplot(conversion_rates_qnt_contato, aes(x = reorder(contact_range, conversion_rate_qtd_contato), 
+                                              y = conversion_rate_qtd_contato, fill = contact_range)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate_qtd_contato, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "% de conversão por Qtd. de Contatos",
+       x = "Qntd. de Contato",
+       y = "Percentual (%)",
+       fill = "Qtd. de Contato") +
+  coord_cartesian(ylim = c(0, max(conversion_rates_qnt_contato$conversion_rate_qtd_contato) + 2)) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+# Combinação dos gráficos:
+combined_qtd_contato <- plot_grid(aquisicao_qtd_contato, 
+                                   conversao_qtd_contato) +
+theme(plot.margin = margin(r = 20, unit = "pt"))
+print(combined_qtd_contato)
 
 ```
+
+Representando quase 40% do total de contatos realizados, o telefone apresenta uma taxa de conversão de apenas 5,2%, em comparação com o celular, que exibe uma taxa de quase 15% e representa um pouco mais de 60% dos contatos efetuados.
+
+Essa discrepância nos números sugere claramente que o meio de contato desempenha um papel influente na tomada de decisão por parte do cliente. Essa influência pode ser atribuída a uma variedade de fatores subjacentes. Em primeiro lugar, a notável diferença nas taxas de conversão entre o telefone e o celular sugere que a preferência dos clientes por um meio de contato mais direto e instantâneo, como o celular, pode estar desempenhando um papel preponderante. A taxa de conversão mais elevada associada ao celular pode indicar que os clientes se sentem mais à vontade e engajados quando são abordados por meio de um dispositivo pessoal e de fácil acesso.
+
+Ademais, essa discrepância também pode estar intrinsecamente relacionada à natureza da comunicação em cada meio. A abordagem por telefone, por vezes, pode ser percebida como invasiva ou menos pessoal, o que pode resultar em uma menor receptividade por parte do cliente. Em contraste, o uso do celular oferece maior flexibilidade, permitindo aos clientes interagirem no momento que melhor lhes convier, o que provavelmente leva a uma maior predisposição para a conversão
+
+A análise de regressão revela uma relação negativa entre a variável "contato" e a aquisição do produto, indicando que um aumento na quantidade de contatos está associado a uma diminuição das chances de conversão. Essa tendência é visualmente evidenciada no gráfico acima, onde observamos que as taxas de conversão mais substanciais ocorrem na faixa de '1-5' contatos. Além disso, é notável que a faixa de '21-25' contatos apresenta uma taxa de conversão excepcionalmente baixa, apenas 1,2%.
+
+Esse padrão sugere claramente que a quantidade de contatos desempenha um papel crucial na aquisição do produto. Nesse sentido, a estratégia de comunicação e engajamento dos atendentes se torna de extrema importância. É fundamental que, logo nos primeiros contatos, os atendentes sejam capazes de transmitir informações de maneira eficaz e envolvente aos clientes. Essa abordagem inicial precisa capturar o interesse e a confiança do cliente, estabelecendo uma base sólida para a futura conversão.
+
+A eficácia dos primeiros contatos não se resume apenas a fornecer informações relevantes, mas também a criar um vínculo que motive o cliente a prosseguir com a aquisição. A personalização da comunicação, compreendendo as necessidades individuais do cliente, pode ser um diferencial crucial nesse estágio. A capacidade de cativar o cliente desde o início pode não apenas aumentar as chances de conversão, mas também evitar o risco de "fadiga" causado por um número excessivo de interações.
+
+Em último, essa análise ressalta a importância de equilibrar a quantidade de contatos com a qualidade e o impacto dessas interações. A estratégia de comunicação deve ser cuidadosamente elaborada para que cada contato inicial seja uma oportunidade valiosa para influenciar positivamente a decisão do cliente, contribuindo para taxas de conversão mais altas e relacionamentos mais sólidos com os clientes.
+
+b) Análise sobre Faixa de Idade relacionando com Profissão e Nível Educacional:
+
+``` {R Perc de Aquisição e Taxa de Conversão por Faixa de Idade}
+
+# Percentual de Aquisição em Faixa de Idade:
+agrup_faixa_idade <- base %>%
+  group_by(age_range, y) %>%
+  summarise(n = n(), .groups = 'drop') %>% 
+  mutate(Perc = (n / sum(n)) * 100)
+
+aquisicao_faixa_idade <- ggplot(agrup_faixa_idade, aes(x = age_range, y = Perc, fill = y)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(Perc, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = paste("% de aquisição por Faixa de Idade"),
+        x = "Faixa de Idade",
+        y = "Percentual (%)",
+         fill = "target") +
+  coord_cartesian(ylim = c(0, max(agrup_faixa_idade$Perc) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "top",
+         axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
+
+# Taxa de Conversão por Faixa de Idade:
+conversion_rates_faixa_idade <- base %>%
+  group_by(age_range) %>%
+  summarise(conversion_rate_faixa_idade = (sum(y == "yes") / n()*100))
+
+conversion_rates_faixa_idade <- conversion_rates_faixa_idade %>%
+  arrange(desc(conversion_rate_faixa_idade))
+
+conversao_faixa_idade <- ggplot(conversion_rates_faixa_idade, aes(x =  reorder(age_range, conversion_rate_faixa_idade), 
+                                              y = conversion_rate_faixa_idade, fill = age_range)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_text(aes(label = paste0(round(conversion_rate_faixa_idade, 1), "%")), 
+            position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "% conversão por Faixa de Idade",
+       x = "Faixa de Idade",
+       y = "Percentual (%)",
+       fill = "Faixa de Idade") +
+  coord_cartesian(ylim = c(0, max(conversion_rates_faixa_idade$conversion_rate_faixa_idade) + 5)) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+# Combinação dos gráficos:
+combined_faixa_idade <- plot_grid(aquisicao_faixa_idade, 
+                                   conversao_faixa_idade)
+print(combined_faixa_idade)
+
+```
+
 Embora a faixa etária de 31 a 50 anos tenha registrado um maior número de clientes que adquiriram o produto, destaca-se que a taxa de conversão mais notável ocorre entre os clientes com mais de 70 anos, onde 47,6% dos indivíduos foram motivados a adquirir o produto. Em contraste, somente 9,1% dos clientes na faixa etária intermediária efetuaram a compra. Em segundo lugar, encontram-se os indivíduos com menos de 18 anos, apresentando uma elevada taxa de adesão ao produto, chegando a 42,4%.
 
-Esses dados revelam uma tendência intrigante, especialmente quando consideramos que o produto em análise é um depósito a prazo, um instrumento financeiro que envolve a alocação de fundos a uma instituição de crédito. Nesse contexto, a instituição se compromete a reembolsar esses fundos ao cliente ao final de um período predeterminado, além de oferecer uma remuneração na forma de juros. Vamos verificar mais algumas informações.
+Esses dados revelam uma tendência intrigante, especialmente quando consideramos que o produto em análise é um depósito a prazo, um instrumento financeiro que envolve a alocação de fundos a uma instituição de crédito. Nesse contexto, a instituição se compromete a reembolsar esses fundos ao cliente ao final de um período predeterminado, além de oferecer uma remuneração na forma de juros. 
+
+Vamos verificar mais algumas informações.
 
 ```{R Distribuição de Profissão por Faixa de Idade}
 
-p <- ggplot(base, aes(x = age_range, fill = job)) +
+# Distribuição de Profissão por Faixa de Idade:
+distr_faixa_prof <- ggplot(base, aes(x = age_range, fill = job)) +
   geom_bar(position = "stack") +
   labs(title = "Distribuição de Cargos por Faixa de Idade",
        x = "Faixa de Idade",
@@ -291,100 +573,101 @@ p <- ggplot(base, aes(x = age_range, fill = job)) +
   theme(legend.position = "top",
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-print(p)
-
+print(distr_faixa_prof)
 
 ```
-
-``` {R Taxa de Conversão por Profissão para cada Faixa de Idade}
+``` {R Taxa de Conversão de Educação e Profissão por Faixa de Idade}
 
 age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
 
 for (i in age_ranges) {
-  conversion_rates <- base %>%
-    filter(age_range %in% c(i)) %>%
-    group_by(job) %>%
-    summarise(conversion_rate = sum(y == "yes") / n())
+
+  # Taxa de Conversão por Profissão para Faixa de Idade:
+  conversion_rates_faixa_idade_profissao <- base %>%
+      filter(age_range %in% c(i)) %>%
+      group_by(job) %>%
+      summarise(conversion_rate_faixa_idade_profissao = (sum(y == "yes") / n()*100))
+    
+  conversion_rates_faixa_idade_profissao <- conversion_rates_faixa_idade_profissao %>%
+      arrange(desc(conversion_rate_faixa_idade_profissao))
+    
+  conversao_faixa_idade_profissao <- ggplot(conversion_rates_faixa_idade_profissao, 
+                                            aes(x = reorder(job, conversion_rate_faixa_idade_profissao),
+                                                y = conversion_rate_faixa_idade_profissao, fill = job)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      geom_text(aes(label = paste0(round(conversion_rate_faixa_idade_profissao, 1), "%")), 
+                position = position_dodge(width = 0.9), vjust = -0.5) +
+      labs(title = paste("% de conversão por Profissão para Faixa de Idade '", i,"'"),
+           x = "Profissão",
+           y = "Percentual (%)",
+           fill = "Profissão")  +
+      coord_cartesian(ylim = c(0, max(conversion_rates_faixa_idade_profissao$conversion_rate_faixa_idade_profissao) + 20)) +
+      theme_minimal() +
+      theme(legend.position = "none",
+            axis.text.x = element_text(angle = 45, hjust = 1)) 
   
-  conversion_rates <- conversion_rates %>%
-    arrange(desc(conversion_rate))
+  # Taxa de Conversão por Nível Educacional para Faixa de Idade:
+  conversion_rates_faixa_idade_educacao <- base %>%
+      filter(age_range %in% c(i)) %>%
+      group_by(education) %>%
+      summarise(conversion_rate_faixa_idade_educacao = (sum(y == "yes") / n()*100))
+    
+  conversion_rates_faixa_idade_educacao <- conversion_rates_faixa_idade_educacao %>%
+      arrange(desc(conversion_rate_faixa_idade_educacao))
+    
+  conversao_faixa_idade_educ <- ggplot(conversion_rates_faixa_idade_educacao, 
+                                            aes(x = reorder(education, conversion_rate_faixa_idade_educacao), 
+                                                y = conversion_rate_faixa_idade_educacao, fill = education)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      geom_text(aes(label = paste0(round(conversion_rate_faixa_idade_educacao, 1), "%")), 
+                position = position_dodge(width = 0.9), vjust = -0.5) +
+      labs(title = paste("% de conversão por Nivel Educacional para Faixa de Idade '", i, "'"),
+           x = "Nivel Educacional",
+           y = "Percentual (%)",
+           fill = "Nivel Educacional")  +
+      coord_cartesian(ylim = c(0, max(conversion_rates_faixa_idade_educacao$conversion_rate_faixa_idade_educacao) + 30)) +
+      theme_minimal() +
+      theme(legend.position = "none",
+            axis.text.x = element_text(angle = 45, hjust = 1)) 
   
-  p <- ggplot(conversion_rates, aes(x = reorder(job, conversion_rate), y = conversion_rate, fill = job)) +
-    geom_bar(stat = "identity", position = "dodge") +
-    geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
-              position = position_dodge(width = 0.9), vjust = -0.5) +
-    labs(title = paste("% de Aquisição do Produto por Profissão para Faixa de Idade '", i, "'"),
-         x = "Profissão",
-         y = "Percentual",
-         fill = "Profissão")  +
-    coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
-    theme_minimal() +
-    theme(legend.position = "top",
-          axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-print(p)
-
-}
-
-```
-
-``` {R Taxa de Conversão por Nivel Educacional para cada Faixa de Idade}
-
-age_ranges <- c("18-30", "31-50", "51-70", "Mais de 70", "Menos de 18")
-
-for (i in age_ranges) {
-  conversion_rates <- base %>%
-    filter(age_range %in% c(i)) %>%
-    group_by(education) %>%
-    summarise(conversion_rate = sum(y == "yes") / n())
+  combined_idade_educacao_prof <- plot_grid(conversao_faixa_idade_educ, 
+                        conversao_faixa_idade_profissao,
+                        nrow = 2, rel_heights = c(2, 2))
   
-  conversion_rates <- conversion_rates %>%
-    arrange(desc(conversion_rate))
-  
-  p <- ggplot(conversion_rates, aes(x = reorder(education, conversion_rate), y = conversion_rate, fill = education)) +
-    geom_bar(stat = "identity", position = "dodge") +
-    geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
-              position = position_dodge(width = 0.9), vjust = -0.5) +
-    labs(title = paste("% de Aquisição do Produto por Profissão para Faixa de Idade '", i, "'"),
-         x = "Nivel Educacional",
-         y = "Percentual",
-         fill = "Nivel Educacional")  +
-    coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
-    theme_minimal() +
-    theme(legend.position = "top",
-          axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-print(p)
-
+  print(combined_idade_educacao_prof)
 }
 
 ```
 
 ``` {R Taxa de Conversão por Nivel Educacional}
 
-conversion_rates <- base %>%
+# Taxa de Conversão por Nível Educacional:
+conversion_rates_educacao <- base %>%
   group_by(education) %>%
-  summarise(conversion_rate = sum(y == "yes") / n())
+  summarise(conversion_rate_educacao = (sum(y == "yes") / n()*100))
 
-conversion_rates <- conversion_rates %>%
-  arrange(desc(conversion_rate))
+conversion_rates_educacao <- conversion_rates_educacao %>%
+  arrange(desc(conversion_rate_educacao))
 
-
-p <- ggplot(conversion_rates, aes(x =  reorder(education, conversion_rate), y = conversion_rate, fill = education)) +
+conversao_educacao <- ggplot(conversion_rates_educacao, 
+            aes(x =  reorder(education, conversion_rate_educacao), 
+                y = conversion_rate_educacao, fill = education)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+  geom_text(aes(label = paste0(round(conversion_rate_educacao, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = "% de Aquisição do Produto por Nível Educacional",
+  labs(title = "% de conversão por Nível Educacional",
        x = "Nível Educacional",
-       y = "Percentual",
+       y = "Percentual (%)",
        fill = "Nível Educacional") +
-  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  coord_cartesian(ylim = c(0, max(conversion_rates_educacao$conversion_rate_educacao) + 5)) +
   theme_minimal() +
-  theme(legend.position = "top",
+  theme(legend.position = "none",
         axis.text.x = element_text(angle = 45, hjust = 1)) 
-print(p)
+
+print(conversao_educacao)
 
 ```
+
 Ao observar a faixa de idade com o menor percentual de conversão, entre 31 e 50 anos, é notável que as maiores taxas de conversão pertencem a estudantes, com 22,3%, seguidos por pessoas desempregadas, com 12%, e trabalhadores de áreas administrativas, com 11,2% de taxa de conversão.
 
 Dentro da faixa de 51 a 70 anos, pessoas desempregadas e trabalhadores de áreas administrativas mantêm-se em segundo e terceiro lugar nas taxas de conversão, com 16,9% e 15,7%, respectivamente. A maior taxa de conversão é observada entre pessoas aposentadas, alcançando 20,3%.
@@ -395,153 +678,140 @@ Os trabalhadores de "blue-collar", que executam trabalhos manuais e/ou ofícios 
 
 No tocante aos estudantes, é plausível inferir que enxergam nessa modalidade de investimento uma oportunidade para estabelecer uma reserva de emergência ou acumular recursos destinados a metas de curto prazo. Nas faixas de "31-50" e "51-70" temos uma maior adesão ao produto pessoas com niveis educacions profissionais e universitários. 
 
-O mesmo raciocínio se aplica aos estudantes da faixa etária "Menos de 18" anos, mas nesse caso, é provável que os pais desses jovens estejam diretamente envolvidos na tomada de decisão desse investimento. A grande adesão ao nível educacional 'basic 6y', que corresponde ao término do 1.º ciclo e abrange alunos com idades aproximadas de 6 a 12 anos, coincide com o período em que os pais começam a considerar a organização de finanças para o futuro de seus filhos.
+Dado que a idade mínima para clientes registrada foi 17 anos, uma quantidade considerável de pessoas possem apenas níveis educacionais básicos e 46,7% não informaram formação. Com uma taxa de conversão de 42,4%, entende-se que pessoas com menores graus de instrução acadêmica apresentam boa aderência ao produto oferecido. 
 
 Na faixa etária "Mais de 70" anos, 83,3% são pessoas sem profissão conhecida. Entre as outras quatro posições, destacam-se os trabalhadores de gerência, com 66,7%, e os trabalhadores de áreas administrativas, com 46,9% de conversão. Inferimos que profissionais ligados à gestão e administração possam ter maior conhecimento sobre a importância da gestão financeira e dos investimentos. 
 
-Por outro lado, os trabalhadores de limpeza apresentam uma taxa de conversão de 57,1%, enquanto os aposentados têm uma taxa de 46,9%. Esses grupos podem não possuir conhecimento aprofundado em questões financeiras e, possivelmente, tenham adquirido o produto por desconhecerem uma variedade maior de opções ou por influência direta do atendente. Ambas as profissões têm valores muito baixos de aquisição em outras faixas etárias. Outro ponto que corrobora para essa análise é que na faixa de "Mais de 70" anos, 100% das pessoas analfabetas adquiriram o porduto, seguindo de 68,2% de pessoas sem profissão conhecida, o que pode indicar a influência significativa do contato direto com os atendentes ou a falta de familiaridade com alternativas no mercado.
+Por outro lado, os trabalhadores de limpeza apresentam uma taxa de conversão de 57,1%, enquanto os aposentados têm uma taxa de 46,9%. Esses grupos podem não possuir conhecimento aprofundado em questões financeiras e, possivelmente, tenham adquirido o produto por desconhecerem uma variedade maior de opções ou por influência direta do atendente. Ambas as profissões têm valores muito baixos de aquisição em outras faixas etárias. Outro ponto que corrobora para essa análise é que na faixa de "Mais de 70" anos, 100% das pessoas analfabetas adquiriram o produto, seguindo de 68,2% de pessoas sem profissão conhecida, o que pode indicar a influência significativa do contato direto com os atendentes ou a falta de familiaridade com alternativas no mercado.
 
 
-Agora, vamos analisar mais profundamento outras questão que podem estar ligadas com a aquisição do produto, como questão econômicas e sociais.
+Vamos analisar mais profundamento outras questão que podem estar ligadas com a aquisição do produto, como questão econômicas e sociais, através da taxa de juros e do nível de confiança do consumidor.
 
+c) Análise Mensal relacionando a Taxa de Juros e o Nível de Confiança do Consumidor:
 
-```{R Percentual de aquisição do produto por Mês'}
+```{R Percentual de Aquisição por Mês}
 
-a <- base %>%
+#Percentual de Aquisição por Mês:
+agrup_mes <- base %>%
   group_by(month, y) %>%
   summarise(n = n(), .groups = 'drop') %>%
   mutate(Perc = (n / sum(n)) * 100)
     
-p <- ggplot(a, aes(x = month, y = Perc, fill = y)) +
+aquisicao_mes <- ggplot(agrup_mes, aes(x = month, y = Perc, fill = y)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(aes(label = paste0(round(Perc, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = paste("Percentual de aquisição do produto por Mês"),
-       x = i,
+  labs(title = paste("% de aquisição em Mês"),
+       x = "Mês",
        y = "Percentual",
        fill = "target") +
-  coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
+  coord_cartesian(ylim = c(0, max(agrup_mes$Perc) + 5)) +
   theme_minimal() +
   theme(legend.position = "top",
          axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
 
-print(p)
-
+print(aquisicao_mes)
 
 ```
 
-``` {R Taxa de conversão x média taxa de juros para cada Mês}
+``` {R Taxa de Conversão por Mês x Média Taxa de Juros x Confiança do Consumidor}
 
-conversion_rates <- base %>%
+# Taxa de Conversão por Mês:
+agrup_mes_arrange <- base %>%
   group_by(month) %>%
-  summarise(conversion_rate = sum(y == "yes") / n())
+  summarise(conversion_rate = (sum(y == "yes") / n()*100))
 
-euribor3m <- base %>%
+# Média de taxa Euriborn por Mês:
+euribor3m_arrange <- base %>%
   group_by(month) %>%
   summarise(euribor3m = mean(euribor3m))
 
-conversion_rates <- conversion_rates %>%
-  left_join(euribor3m, by = "month") %>%  
-  arrange(desc(conversion_rate))
+# Média da Confiança do COnsumidor por Mês:
+cons.conf.idx_arange <- base %>%
+  group_by(month) %>%
+  summarise(cons.conf.idx = mean(cons.conf.idx))
 
-p <- ggplot(conversion_rates, aes(x = reorder(month, conversion_rate), y = conversion_rate, fill = month)) +
+# Junção das tabelas:
+join_euriborn_conf_conv <- agrup_mes_arrange %>%
+  left_join(cons.conf.idx_arange, by = "month") %>%  
+  left_join(euribor3m_arrange, by = "month") %>%  
+  arrange(desc(agrup_mes_arrange))
+join_euriborn_conf_conv$month <- factor(join_euriborn_conf_conv$month) 
+
+# Evolução Taxa Euriborn:
+plot_euribor <- ggplot(join_euriborn_conf_conv, aes(x = reorder(month, conversion_rate), y = euribor3m, group = 1)) +
+  geom_line(color = "#1f78b4") +
+  geom_label(aes(label = scales::comma_format(scale = 1)(euribor3m)),
+             nudge_y = 0.1, fill = "white", color = "black", label.padding = unit(0.2, "lines")) +
+  labs(title = "Taxa de Conversão x Confiança do Consumidor x Média Taxa de Juros ",
+       x = NULL,
+       y = "Juros") +
+  coord_cartesian(ylim = c(0, 6)) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())  
+
+# Evolução Confiança do Consumidor:
+plot_conf_idx <- ggplot(join_euriborn_conf_conv, aes(x = reorder(month, conversion_rate), y = cons.conf.idx, group = 1)) +
+  geom_line(color = "#33a02c") +
+  geom_label(aes(label = scales::comma_format(scale = 1)(cons.conf.idx)),
+             nudge_y = 0.5, fill = "white", color = "black", label.padding = unit(0.2, "lines")) +
+  labs(title = NULL,
+       x = NULL,
+       y = "Confiança") +
+  coord_cartesian(ylim = c(-47, -32)) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank()) 
+
+# Taxa de Conversão por Mês?
+conv_mes <- ggplot(join_euriborn_conf_conv, aes(x = reorder(month, conversion_rate), y = conversion_rate, fill = month)) +
   geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
+  geom_text(aes(label = paste0(round(conversion_rate, 1), "%")), 
             position = position_dodge(width = 0.9), vjust = -0.5) +
-  geom_text(aes(label = paste0(round(euribor3m, 2))), 
-            position = position_dodge(width = 0.9), vjust = -3, color = "#1f78b4") +
-  labs(title = "% de Aquisição do Produto x Média Taxa de Juros por Mês",
+  labs(title = NULL,
        x = "Mês",
-       y = "Percentual",
+       y = "Conversão",
        fill = "Mês") +
-  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
+  coord_cartesian(ylim = c(0, max(join_euriborn_conf_conv$conversion_rate) + 20)) +
   theme_minimal() +
-  theme(legend.position = "top",
-        axis.text.x = element_text(angle = 45, hjust = 1)) 
+  theme(legend.position = "none",  
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill = "none")  
 
-print(p)
+# Combinação dos gráficos:
+combined_conv_juros_confi <- plot_grid(plot_euribor, 
+                                       plot_conf_idx, 
+                                       conv_mes, 
+                                       nrow = 3, rel_heights = c(2, 2, 2))
 
-```
-Observamos que o mês de Maio registrou a mais alta taxa de recusa do produto, atingindo 31,3%. Coincidentemente, maio também apresentou a menor taxa de conversão, com apenas 6,4%. Além disso, neste mês, constatamos a quinta maior média de taxa de juros dentro do período analisado.
-
-Por outro lado, março se destacou ao conquistar a maior taxa de conversão, alcançando 50,5%, e ostentou a terceira menor média de taxa de juros, registrando apenas 1,16%.
-
-É possível deduzir que a diminuição das taxas de juros estimulou uma maior adesão ao produto. Isso se explica pelo fato de que, com juros reduzidos, os clientes enfrentam encargos menores, o que torna a aquisição do produto mais vantajosa. Notavelmente, dentre os cinco meses com as taxas de conversão mais elevadas (Março, Dezembro, Setembro, Outubro e Abril), estão também os cinco meses com as menores taxas de juros do período analisado.
-
-```{R Percentual de aquisição do produto por Estado Civíl'}
-
-a <- base %>%
-  group_by(marital, y) %>%
-  summarise(n = n(), .groups = 'drop') %>%
-  mutate(Perc = (n / sum(n)) * 100)
-    
-p <- ggplot(a, aes(x = marital, y = Perc, fill = y)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = paste0(round(Perc, 1), "%")), 
-            position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = paste("Percentual de aquisição do produto por Estado Civil"),
-       x = i,
-       y = "Percentual",
-       fill = "target") +
-  coord_cartesian(ylim = c(0, max(a$Perc) + 5)) +
-  theme_minimal() +
-  theme(legend.position = "top",
-         axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_manual(values = c("#1f78b4", "#a6cee3"))
-
-print(p)
-
+print(combined_conv_juros_confi)
 
 ```
 
-``` {R Taxa de conversão por Estado Civíl}
+Através da análise da regressão logística, podemos inferir que o Euribor tem uma influência positiva na adesão de produtos de depósito a prazo, com um coneficiente positivo. Essa relação faz sentido, já que quando as taxas de juros, como o Euribor, estando em níveis elevados, os bancos tendem a oferecer rendimentos mais atrativos em produtos de investimento a prazo, como depósitos a prazo fixo. Ao investir nesse tipo de produto, os clientes têm a oportunidade de ganhar juros substanciais em seus investimentos.
 
-conversion_rates <- base %>%
-  group_by(marital) %>%
-  summarise(conversion_rate = sum(y == "yes") / n())
+No entanto, é importante considerar que, mesmo quando as taxas de juros estão altas, outras opções de investimento mais atrativas podem surgir. Por exemplo, investir em ações, títulos ou outros ativos pode oferecer retornos mais elevados do que os depósitos a prazo. Esse cenário pode levar alguns investidores a preferir opções de maior risco, especialmente aqueles que estão dispostos a assumir riscos em busca de ganhos mais expressivos.
 
-conversion_rates <- conversion_rates %>%
-  arrange(desc(conversion_rate))
+Essa preferência por investimentos mais arriscados pode explicar a relação aparentemente contrária entre o Euribor e a adesão aos produtos de depósito a prazo, conforme visualizado no gráfico. Em momentos de taxas de juros altas, embora os depósitos a prazo ofereçam rendimentos atrativos, investidores podem optar por buscar oportunidades mais lucrativas em outros ativos.
+
+Outro ponto muito importante a ser considerado é a confiança do consumidor que, quando menor, menos propenso os indivíduos estarão a investir, mesmo com taxas de juros mais atrativas. A confiança na economia e no mercado financeiro desempenha um papel fundamental nas decisões de investimento. Se os consumidores percebem incertezas ou instabilidades econômicas, eles podem optar por adiar ou diversificar seus investimentos, mesmo quando as taxas de juros estão favoráveis. Como podemos verificar, nas maior parte nos meses em que a taxa de juros era maior, havia uma menor confiança do consumidor, o que pode ter derrubado o interesse de adquirir o produto de investimento.
 
 
-p <- ggplot(conversion_rates, aes(x = reorder(marital, conversion_rate), y = conversion_rate, fill = marital)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = paste0(round(conversion_rate * 100, 1), "%")), 
-            position = position_dodge(width = 0.9), vjust = -0.5) +
-  labs(title = "Percentual de Aquisição do Produto por Estado Civíl",
-       x = "Faixa de Idade",
-       y = "Percentual",
-       fill = "Faixa de Idade") +
-  coord_cartesian(ylim = c(0, max(conversion_rates$conversion_rate) + 5)) +
-  theme_minimal() +
-  theme(legend.position = "top",
-        axis.text.x = element_text(angle = 45, hjust = 1)) 
-print(p)
+- Árvore de Decisão:
 
-## realizar conclusão sobre análise de estado civil ##
+O processo de construção da árvore de decisão envolve a cuidadosa seleção de variáveis independentes relevantes, como idade, ocupação, estado civil, fatores socioeconômicos, entre outros, que possam contribuir para a previsão da resposta desejada.
 
-```
+A árvore de decisão fragmenta os dados em ramos, nos quais cada ramo representa uma escolha entre diferentes valores de uma variável independente. Cada folha da árvore culmina em uma decisão final, que, no contexto presente, traduz-se na previsão da resposta do cliente às campanhas de marketing.
 
-[Conclusões Gerais]
+No âmbito do nosso modelo de árvore, adotaremos o método de validação cruzada. Isso permitirá a exploração de parâmetros que resultem na melhor métrica possível. Para o nosso caso, a métrica escolhida é a curva ROC, que nos oferece insights sobre o desempenho preditivo do modelo.
 
-Em relação as pessoas idosas, com uma taxa de conversão de 47,9%, seu interesse no produto pode ser motivado pelo desejo de preservar e administrar cuidadosamente os recursos financeiros acumulados ao longo da vida. A alta taxa de conversão sugere que esse grupo demográfico percebe o depósito a prazo como uma forma segura e confiável de manter seus fundos. Além disso, para idosos que não atuam em áreas administrativas, é possível considerar que, devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes, sendo levando pelo poder de persuasão dos atendentes.
+Posteriormente, procederemos com as predições e avaliaremos o modelo com base em métricas essenciais, como acurácia, sensibilidade e especificidade. Essas métricas fornecerão uma compreensão abrangente do desempenho do modelo em diferentes aspectos.
 
-Essa consideração pode explicar a taxa de conversão relativamente menor nas faixas etárias de 18 a 30 e de 51 a 70, onde uma parcela mais ampla da população possivelmente tenha uma base de conhecimento em finanças e investimentos, levando-os a explorar diferentes tipos de produtos financeiros para atender às suas necessidades específicas.
-
-Para os jovens das faixas de "Menos de 18" e "18-30" anos, percebe-se nessa modalidade de investimento uma oportunidade de criar uma reserva de emergência ou acumular recursos para metas de curto prazo, como a aquisição de bens de valor ou custos associados à educação superior. Além disso, a escolha desse produto pode refletir a busca por segurança e estabilidade financeira, visto que os depósitos a prazo geralmente garantem retornos previsíveis e são considerados menos arriscados em comparação com outras formas de investimento.
-
-Por fim, observa-se uma alta taxa de conversão de pessoas desempregadas nas faixas de "18-30", "31-50" e "51-70", devido às características deste tipo de produto e possivelmente à falta de conhecimento sobre questões financeiras e de investimento.
-
-Observamos que o mês de Maio registrou a mais alta taxa de recusa do produto, atingindo 31,3%. Coincidentemente, maio também apresentou a menor taxa de conversão, com apenas 6,4%. Além disso, neste mês, constatamos a quinta maior média de taxa de juros dentro do período analisado.
-
-Por outro lado, março se destacou ao conquistar a maior taxa de conversão, alcançando 50,5%, e ostentou a terceira menor média de taxa de juros, registrando apenas 1,16%.
-
-É possível deduzir que a diminuição das taxas de juros estimulou uma maior adesão ao produto. Isso se explica pelo fato de que, com juros reduzidos, os clientes enfrentam encargos menores, o que torna a aquisição do produto mais vantajosa. Notavelmente, dentre os cinco meses com as taxas de conversão mais elevadas (Março, Dezembro, Setembro, Outubro e Abril), estão também os cinco meses com as menores taxas de juros do período analisado.
-
-############### Árvore de Decisão:
+Por fim, buscaremos otimizar a classificação ao identificar o ponto de corte mais eficaz na curva ROC. A partir dessa otimização, aplicaremos novamente o modelo e avaliaremos se ocorreram mudanças significativas na capacidade de classificação.
 
 ```{r Separação dados de Treino e Teste}
+
+base <- subset(base, select = -c(nr.employed))
 
 set.seed(123) 
 divisao <- initial_split(base, prop = 0.7)
@@ -550,17 +820,17 @@ teste <- testing(divisao)
 
 ```
 
-```{r Validação Cruzada e Modelo}
+```{r Validação Cruzada}
 
-# Definindo os parâmetros de controle do treinamento:
+# Configurando o controle de treinamento
 
 ctrl <- trainControl(method = "cv", # validação cruzada
                      number = 10, # quantidade de folds
                      summaryFunction = twoClassSummary, # função de resumo para problemas de classif binária
                      classProbs = TRUE) # permitir a saída das probabilidades das classes
+```
 
-# Modelo treinado:
-
+```{R Treinando o Modelo}
 
 dtFit <- train(y ~ ., # target em relação a todos os outros parâmetros
                method = "rpart2", # usa a profundidade máxima (caso rpart, o parâmetro seria o de complexidade)
@@ -570,36 +840,62 @@ dtFit <- train(y ~ ., # target em relação a todos os outros parâmetros
                data = treino) # utilizando o conjunto de treinamento
 
 dtFit
-# plot(dtFit)
 
 ```
+
+O resultado apresentado acima emerge do processo de treinamento por meio da validação cruzada, empregando uma abordagem com 10 folds, ou seja, o conjunto de dados é particionado em 10 partes distintas para executar o treinamento e avaliação repetidamente.
+
+Mediante esse procedimento, o modelo é treinado em nove partes e validado na décima, seguido de uma rotação subsequente para cada combinação possível de partes. Tal abordagem se mostra crucial para verificar a eficiência do modelo de maneira robusta, uma vez que contempla diversas divisões diferentes dos dados.
+
+Ao observarmos os resultados vemos que o valor final escolhido para o hiperparâmetro maxdepth foi 7, pois resultou no maior valor de ROC.
+
+As métricas Sensibilidade e Especificidade são importantes para entender como o modelo está se comportando em relação a classificações positivas e negativas. O ajuste do parâmetro maxdepth influencia diretamente essas métricas e, por consequência, o equilíbrio entre os erros de classificação. O resultado mostra que, em geral, quanto maior a profundidade da árvore (até um certo ponto), maior a métrica ROC e a Sensibilidade, mas isso também pode levar a uma Especificidade menor. Isso é um trade-off típico em problemas de classificação, onde ajustar um parâmetro para melhorar o desempenho em uma métrica pode afetar outra métrica.
+
+Em resumo, o processo de validação cruzada ajudou a selecionar o valor ótimo do hiperparâmetro maxdepth para a árvore de decisão, que resultou em um modelo que apresentou o melhor equilíbrio entre Sensibilidade e Especificidade, medido pela métrica ROC.
 
 ``` {R Visualização da Árvore de Decisão}
 
 rpart.plot(dtFit$finalModel,
            extra = 4, # informação extra nos nós
-           type = 1, # tipo de gráfico
+           type = 3, # tipo de gráfico
            box.palette = "RdYlGn") # cor dos nós
 
 ```
 
-######## Predições:
+Na árvore apresentada, a observação inicial é o nó raiz, que é dividido com base na condição da Taxa Euribor, evidenciando a relevância significativa dessa taxa na tomada de decisão final dos clientes. O nó raiz é selecionado com base no que chamamos de Índice Gini, um critério que mede a diminuição da impureza resultante da divisão. Nesse contexto, o nó raiz será aquele que exibe o maior valor do Índice Gini, indicando a maior redução na impureza, ou seja, a maior ganho de informação ao dividir os dados.
 
-``` {R Predições com o modelo treinado}
+Em outras palavras, essa primeira partição na árvore corresponde ao ponto onde ocorre a maior redução na incerteza ou entropia dos dados, resultando em um ganho substancial de informações. Isso implica que, após essa divisão, os dados estão mais concentrados e menos dispersos entre as diferentes classificações possíveis, aumentando a capacidade do modelo de fazer previsões mais precisas.
+
+Após essa primeira divisão, a árvore prossegue analisando a duração da ligação. A duração da ligação é uma característica subsequente considerada na árvore de decisão. A inclusão dessa variável indica que, após uma avaliação inicial da taxa Euribor, a duração da ligação surge como outro fator relevante para a previsão da resposta do cliente.
+
+A quantidade de dias após o contato com o cliente em uma antiga campanha também desempenha um papel de destaque nessa árvore de decisão. A inclusão desse fator adiciona mais uma dimensão à análise, sugerindo que o histórico temporal das interações com o cliente tem um impacto direto nas previsões.
+
+
+- Predições:
+
+Com o modelo treinado, avançamos para a etapa de realizar previsões utilizando a base de teste. Em seguida, procederemos à validação das métricas utilizando essa nova base.
+
+``` {R Predições com o Modelo Treinado}
 
 preddt <- predict(dtFit, teste, type = "prob") # utilizando o modelo dtFit, com a base de teste, com resultados através das probabilidades
 resultdt <- as.factor(ifelse(preddt[,2] > 0.5, "yes", "no")) # preddt[,2] - coluna com as prob de 'yes'
-resultdt
+# resultdt
 
 ```
 
-######## Desempenho do Modelo:
+- Desempenho do Modelo na base de teste:
 
 ``` {R Matriz de Confusão}
 
 confusionMatrix(resultdt, teste$y, positive = "yes")
 
 ```
+
+Ao avaliar o modelo com os dados de teste, notamos um desempenho notável na identificação dos verdadeiros negativos, demonstrado por uma alta especificidade de 0,95. Isso indica que o modelo é eficaz em reconhecer as instâncias que realmente não pertencem à classe positiva. 
+
+No entanto, o mesmo modelo apresentou uma eficiência inferior na identificação dos verdadeiros positivos, com uma sensibilidade de apenas 0,55. Isso sugere que o modelo está enfrentando dificuldades em corretamente classificar as instâncias que realmente pertencem à classe positiva. Em termos simples, o modelo está demonstrando um bom trabalho ao evitar falsos positivos, mas não está tão sensível quanto gostaríamos para detectar todos os verdadeiros positivos.
+
+No caso do nosso problema, onde buscamos prever clientes que estão propícios a adquirir o produto, é essencial que o modelo consiga classificar corretamente as instâncias positivas, pois isso representa o grupo de maior interesse para a instituição bancária. A sensibilidade baixa indica que o modelo está perdendo oportunidades de identificar clientes potenciais, o que pode impactar negativamente a eficácia das campanhas de marketing direto.
 
 ``` {R Curva ROC AUC}
 
@@ -608,16 +904,37 @@ plot.roc(aucdf, print.thres = T) #  print.thres: descobrimos o melhor ponto de c
 
 ```
 
-``` {R Predições com o modelo treinado em novo ponto de corte}
+Ao plotar a curva ROC obtivemos o valor do threshold, ou seja, o ponto no qual alcançamos um equilíbrio entre sensibilidade e especificidade. 
 
-# preddt <- predict(dtFit, teste, type = "prob") 
-# resultdt <- as.factor(ifelse(preddt[,2] > 0.089, "yes", "no")) 
+O threshold é o valor de probabilidade acima do qual um exemplo é classificado como positivo, e abaixo do qual é classificado como negativo. Encontrar o threshold ideal é crucial para ajustar o modelo de acordo com as necessidades específicas do problema, pois através deles conseguimos equilibrar os valores de sensibilidade e especificidade que o modelo apresenta.
 
-# confusionMatrix(resultdt, teste$y, positive = "yes")
+``` {R Predições com o Modelo Treinado em novo Ponto de Corte}
+
+preddt <- predict(dtFit, teste, type = "prob") 
+resultdt <- as.factor(ifelse(preddt[,2] > 0.093, "yes", "no")) 
+
+confusionMatrix(resultdt, teste$y, positive = "yes")
 
 ```
 
+Ao realizar previsões com a aplicação do threshold de 0,093, observamos um aumento significativo no valor da sensibilidade, que passou de 0,55 para 0,77. Isso indica que o modelo se tornou mais capaz de identificar corretamente as instâncias que realmente pertencem à classe positiva. No entanto, esse ganho na sensibilidade veio acompanhado de uma perda no poder de classificação dos negativos reais, resultando em uma queda de 0,08 na especificidade, que passou de 0,95 para 0,87.
 
+Além disso, a adoção desse novo threshold também teve impacto na acurácia geral do modelo. A acurácia caiu 0,05 pontos, diminuindo de 0,91 para 0,86. Isso ocorreu porque, ao ajustar o threshold para aumentar a sensibilidade e capturar mais verdadeiros positivos, o modelo acabou permitindo um número maior de falsos positivos, o que impactou negativamente a acurácia total.
 
+Essas mudanças destacam o delicado equilíbrio entre sensibilidade, especificidade e acurácia na avaliação de modelos de classificação. O ajuste do threshold é uma estratégia para maximizar a capacidade do modelo de identificar um grupo específico de interesse, mas também pode afetar negativamente a performance em outros aspectos. Portanto, é crucial considerar o contexto e os objetivos do problema ao tomar decisões sobre o threshold e interpretar as métricas resultantes.
 
+- Conclusões Gerais: 
 
+Através da análise exploratória dos dados, em relação as pessoas idosas, com uma taxa de conversão de 47,9%, seu interesse no produto pode ser motivado pelo desejo de preservar e administrar cuidadosamente os recursos financeiros acumulados ao longo da vida. A alta taxa de conversão sugere que esse grupo demográfico percebe o depósito a prazo como uma forma segura e confiável de manter seus fundos. Além disso, para idosos que não atuam em áreas administrativas, é possível considerar que, devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes, sendo levando pelo poder de persuasão dos atendentes.
+
+Essa consideração pode explicar a taxa de conversão relativamente menor nas faixas etárias de 18 a 30 e de 51 a 70, onde uma parcela mais ampla da população possivelmente tenha uma base de conhecimento em finanças e investimentos, levando-os a explorar diferentes tipos de produtos financeiros para atender às suas necessidades específicas.
+
+Para os jovens das faixas de "18-30" anos, percebe-se nessa modalidade de investimento uma oportunidade de criar uma reserva de emergência ou acumular recursos para metas de curto prazo, como a aquisição de bens de valor ou custos associados à educação superior. Além disso, a escolha desse produto pode refletir a busca por segurança e estabilidade financeira, visto que os depósitos a prazo geralmente garantem retornos previsíveis e são considerados menos arriscados em comparação com outras formas de investimento. 
+
+Considerando a faixa de "Menos de 18" com um valor mínimo de 17 anos, verificamos uma quantidade considerável de pessoas possem apenas níveis educacionais básicos e 46,7% não informaram formação. Infere-se que pessoas com menores graus de instrução acadêmica apresentam boa aderência ao produto oferecido assim como a faixa de “Mais de 70 anos” devido à falta de conhecimento prévio em finanças e investimentos, optem por adquirir o produto sem explorar outras alternativas existentes.
+
+Por fim, observa-se uma alta taxa de conversão de pessoas desempregadas nas faixas de "18-30", "31-50" e "51-70", devido às características deste tipo de produto e possivelmente à falta de conhecimento sobre questões financeiras e de investimento, pois conforme observado durante a análise exploratório em muitos meses com taxas de juros mais elevadas, a confiança do consumidor estava em níveis inferiores, possivelmente impactando o interesse por produtos de investimento.
+
+A análise mensal examina a relação entre a Taxa de Juros Euribor e o Nível de Confiança do Consumidor em relação à adesão aos produtos de depósito a prazo. Através de uma análise de regressão, é evidenciado que a Taxa Euribor tem uma influência positiva na adesão aos depósitos a prazo, pois taxas mais elevadas tornam esses produtos mais atraentes. No entanto, em períodos de juros altos, investidores podem preferir alternativas mais arriscadas, como ações ou títulos, buscando retornos maiores.
+
+O nível de confiança do consumidor também é fundamental, afetando as decisões de investimento. Quando a confiança é baixa, as pessoas hesitam em investir, mesmo com taxas de juros favoráveis. A percepção da economia influencia as escolhas de investimento, e incertezas podem levar a adiamentos ou diversificações de investimentos, mesmo com juros altos. A análise de regressão confirma essa relação complexa. Portanto, entender a interação entre taxas de juros, confiança do consumidor e decisões de investimento é essencial para uma interpretação precisa dessas dinâmicas.
