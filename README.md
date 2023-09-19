@@ -1,4 +1,7 @@
  <h1 align="center">Modelo de Árvore de Decisão em dados bancários.</h1>
+
+ - Acesse o projeto também em:
+ [positcloud](https://posit.cloud/content/6324494) | [rpubs](https://rpubs.com/lauramsromano/decision_tree)
  
  
 ### 📌 <strong>Sobre o projeto:</strong>
